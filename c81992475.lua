@@ -51,16 +51,24 @@ end
 function c81992475.ssop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not c:IsRelateToEffect(e) then return end
-	Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+	if Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)==0 and Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) then
+		Duel.SendtoGrave(c,REASON_RULE)
+	end
 end
 function c81992475.rmfilter(c)
-	return c:IsSetCard(0xb1) and not c:IsCode(81992475) and c:IsAbleToRemove()
+	if not c:IsSetCard(0xb1) or c:IsCode(81992475) or not c:IsAbleToRemove() then return false end
+	if Duel.IsPlayerAffectedByEffect(c:GetControler(),69832741) then
+		return c:IsFaceup() and c:IsLocation(LOCATION_MZONE)
+	else
+		return c:IsLocation(LOCATION_GRAVE)
+	end
 end
 function c81992475.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c81992475.rmfilter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(c81992475.rmfilter,tp,LOCATION_GRAVE,0,1,nil) end
+	if chkc then return chkc:IsLocation(LOCATION_MZONE+LOCATION_GRAVE) and chkc:IsControler(tp) and c81992475.rmfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(c81992475.rmfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectTarget(tp,c81992475.rmfilter,tp,LOCATION_GRAVE,0,1,3,nil)
+	local g=Duel.SelectTarget(tp,c81992475.rmfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,3,nil)
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,g:GetCount(),0,0)
 	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,g:GetCount()*300)
 end

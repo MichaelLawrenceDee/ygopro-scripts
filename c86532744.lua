@@ -15,6 +15,13 @@ function c86532744.initial_effect(c)
 	e1:SetTarget(c86532744.target)
 	e1:SetOperation(c86532744.operation)
 	c:RegisterEffect(e1)
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_SINGLE)
+	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
+	e2:SetCode(511002571)
+	e2:SetLabelObject(e1)
+	e2:SetLabel(c:GetOriginalCode())
+	c:RegisterEffect(e2)
 end
 c86532744.xyz_number=39
 function c86532744.ovfilter(c)
@@ -30,7 +37,7 @@ function c86532744.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c86532744.filter(c)
 	return c:IsAbleToRemove()
-		and c:IsSummonType(SUMMON_TYPE_SPECIAL)
+		and bit.band(c:GetSummonType(),SUMMON_TYPE_SPECIAL)==SUMMON_TYPE_SPECIAL
 end
 function c86532744.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and c86532744.filter(chkc) end

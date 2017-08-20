@@ -38,14 +38,19 @@ function c80230510.activate(e,tp,eg,ep,ev,re,r,rp)
 	Duel.RegisterEffect(e3,tp)
 end
 function c80230510.rmfilter(c)
-	return c:IsType(TYPE_MONSTER) and c:IsAbleToRemoveAsCost()
+	if not c:IsType(TYPE_MONSTER) or not c:IsAbleToRemoveAsCost() then return false end
+	if Duel.IsPlayerAffectedByEffect(c:GetControler(),69832741) then
+		return c:IsLocation(LOCATION_MZONE)
+	else
+		return c:IsLocation(LOCATION_GRAVE)
+	end
 end
 function c80230510.otcon(e,c,minc)
 	if c==nil then return true end
 	local tp=c:GetControler()
 	return minc<=2 and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingMatchingCard(c80230510.rmfilter,tp,LOCATION_GRAVE,0,1,nil)
-		and Duel.IsExistingMatchingCard(c80230510.rmfilter,tp,0,LOCATION_GRAVE,1,nil)
+		and Duel.IsExistingMatchingCard(c80230510.rmfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,nil)
+		and Duel.IsExistingMatchingCard(c80230510.rmfilter,tp,0,LOCATION_MZONE+LOCATION_GRAVE,1,nil)
 end
 function c80230510.ottg(e,c)
 	local mi,ma=c:GetTributeRequirement()
@@ -53,9 +58,9 @@ function c80230510.ottg(e,c)
 end
 function c80230510.otop(e,tp,eg,ep,ev,re,r,rp,c)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g1=Duel.SelectMatchingCard(tp,c80230510.rmfilter,tp,LOCATION_GRAVE,0,1,1,nil)
+	local g1=Duel.SelectMatchingCard(tp,c80230510.rmfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,1,nil)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g2=Duel.SelectMatchingCard(tp,c80230510.rmfilter,tp,0,LOCATION_GRAVE,1,1,nil)
+	local g2=Duel.SelectMatchingCard(tp,c80230510.rmfilter,tp,0,LOCATION_MZONE+LOCATION_GRAVE,1,1,nil)
 	g1:Merge(g2)
 	Duel.Remove(g1,POS_FACEUP,REASON_COST)
 	Duel.ResetFlagEffect(tp,80230510)

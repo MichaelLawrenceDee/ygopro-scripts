@@ -2,7 +2,8 @@
 function c85507811.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
-	aux.AddFusionProcCode2(c,89943723,17732278,false,false)
+	aux.AddFusionProcMix(c,true,true,89943723,17732278)
+	aux.AddContactFusion(c,c85507811.contactfil,c85507811.contactop)
 	--spsummon condition
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -49,40 +50,16 @@ function c85507811.initial_effect(c)
 	e5:SetOperation(c85507811.desop)
 	c:RegisterEffect(e5)
 end
+function c85507811.contactfil(tp)
+	return Duel.GetMatchingGroup(Card.IsAbleToDeckOrExtraAsCost,tp,LOCATION_ONFIELD,0,nil)
+end
+function c85507811.contactop(g,tp)
+	Duel.ConfirmCards(1-tp,g)
+	Duel.SendtoDeck(g,nil,2,REASON_COST+REASON_MATERIAL)
+end
 c85507811.material_setcode=0x8
 function c85507811.splimit(e,se,sp,st)
 	return not e:GetHandler():IsLocation(LOCATION_EXTRA)
-end
-function c85507811.matfilter(c)
-	return c:IsFusionCode(89943723,17732278) and c:IsAbleToDeckOrExtraAsCost()
-end
-function c85507811.spfilter1(c,tp,g)
-	return g:IsExists(c85507811.spfilter2,1,c,tp,c)
-end
-function c85507811.spfilter2(c,tp,mc)
-	return (c:IsFusionCode(89943723) and mc:IsFusionCode(17732278)
-		or c:IsFusionCode(17732278) and mc:IsFusionCode(89943723))
-		and Duel.GetLocationCountFromEx(tp,tp,Group.FromCards(c,mc))>0
-end
-function c85507811.spcon(e,c)
-	if c==nil then return true end
-	local tp=c:GetControler()
-	local g=Duel.GetMatchingGroup(c85507811.matfilter,tp,LOCATION_ONFIELD,0,nil)
-	return g:IsExists(c85507811.spfilter1,1,nil,tp,g)
-end
-function c85507811.spop(e,tp,eg,ep,ev,re,r,rp,c)
-	local g=Duel.GetMatchingGroup(c85507811.matfilter,tp,LOCATION_ONFIELD,0,nil)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local g1=g:FilterSelect(tp,c85507811.spfilter1,1,1,nil,tp,g)
-	local mc=g1:GetFirst()
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local g2=g:FilterSelect(tp,c85507811.spfilter2,1,1,mc,tp,mc)
-	g1:Merge(g2)
-	local cg=g1:Filter(Card.IsFacedown,nil)
-	if cg:GetCount()>0 then
-		Duel.ConfirmCards(1-tp,cg)
-	end
-	Duel.SendtoDeck(g1,nil,2,REASON_COST)
 end
 function c85507811.retcon1(e,tp,eg,ep,ev,re,r,rp)
 	return not e:GetHandler():IsHasEffect(42015635)

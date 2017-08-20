@@ -57,18 +57,27 @@ function c86238081.initial_effect(c)
 	e6:SetTarget(c86238081.pentg)
 	e6:SetOperation(c86238081.penop)
 	c:RegisterEffect(e6)
+	local e7=Effect.CreateEffect(c)
+	e7:SetType(EFFECT_TYPE_SINGLE)
+	e7:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
+	e7:SetCode(511002571)
+	e7:SetLabel(c:GetOriginalCode())
+	e7:SetLabelObject(e5)
+	c:RegisterEffect(e7)
 end
 c86238081.pendulum_level=7
 function c86238081.pcfilter(c)
 	return c:IsType(TYPE_PENDULUM) and not c:IsForbidden()
 end
 function c86238081.pctg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return (Duel.CheckLocation(tp,LOCATION_PZONE,0) or Duel.CheckLocation(tp,LOCATION_PZONE,1))
+	local seq=e:GetHandler():GetSequence()
+	if chk==0 then return Duel.CheckLocation(tp,LOCATION_SZONE,13-seq)
 		and Duel.IsExistingMatchingCard(c86238081.pcfilter,tp,LOCATION_DECK,0,1,nil) end
 end
 function c86238081.pcop(e,tp,eg,ep,ev,re,r,rp)
 	if not e:GetHandler():IsRelateToEffect(e) then return end
-	if not Duel.CheckLocation(tp,LOCATION_PZONE,0) and not Duel.CheckLocation(tp,LOCATION_PZONE,1) then return end
+	local seq=e:GetHandler():GetSequence()
+	if not Duel.CheckLocation(tp,LOCATION_SZONE,13-seq) then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
 	local g=Duel.SelectMatchingCard(tp,c86238081.pcfilter,tp,LOCATION_DECK,0,1,1,nil)
 	if g:GetCount()>0 then
@@ -76,7 +85,7 @@ function c86238081.pcop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c86238081.regcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSummonType(SUMMON_TYPE_XYZ) and e:GetLabel()==1
+	return e:GetHandler():GetSummonType()==SUMMON_TYPE_XYZ and e:GetLabel()==1
 end
 function c86238081.regop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -121,10 +130,10 @@ function c86238081.pencon(e,tp,eg,ep,ev,re,r,rp)
 	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsFaceup()
 end
 function c86238081.pentg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.CheckLocation(tp,LOCATION_PZONE,0) or Duel.CheckLocation(tp,LOCATION_PZONE,1) end
+	if chk==0 then return Duel.CheckLocation(tp,LOCATION_SZONE,6) or Duel.CheckLocation(tp,LOCATION_SZONE,7) end
 end
 function c86238081.penop(e,tp,eg,ep,ev,re,r,rp)
-	if not Duel.CheckLocation(tp,LOCATION_PZONE,0) and not Duel.CheckLocation(tp,LOCATION_PZONE,1) then return false end
+	if not Duel.CheckLocation(tp,LOCATION_SZONE,6) and not Duel.CheckLocation(tp,LOCATION_SZONE,7) then return false end
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) then
 		Duel.MoveToField(c,tp,tp,LOCATION_SZONE,POS_FACEUP,true)

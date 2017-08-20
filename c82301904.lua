@@ -31,20 +31,25 @@ function c82301904.initial_effect(c)
 	Duel.AddCustomActivityCounter(82301904,ACTIVITY_CHAIN,aux.FALSE)
 end
 function c82301904.spfilter(c,att)
-	return c:IsAttribute(att) and c:IsAbleToRemoveAsCost()
+	if not c:IsAttribute(att) or not c:IsAbleToRemoveAsCost() then return false end
+	if Duel.IsPlayerAffectedByEffect(c:GetControler(),69832741) then
+		return c:IsFaceup() and c:IsLocation(LOCATION_MZONE)
+	else
+		return c:IsLocation(LOCATION_GRAVE)
+	end
 end
 function c82301904.spcon(e,c)
 	if c==nil then return true end
 	local tp=c:GetControler()
-	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingMatchingCard(c82301904.spfilter,tp,LOCATION_GRAVE,0,1,nil,ATTRIBUTE_LIGHT)
-		and Duel.IsExistingMatchingCard(c82301904.spfilter,tp,LOCATION_GRAVE,0,1,nil,ATTRIBUTE_DARK)
+	return (Duel.GetLocationCount(tp,LOCATION_MZONE)>0 or Duel.IsPlayerAffectedByEffect(tp,69832741)) 
+		and Duel.IsExistingMatchingCard(c82301904.spfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,nil,ATTRIBUTE_LIGHT)
+		and Duel.IsExistingMatchingCard(c82301904.spfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,nil,ATTRIBUTE_DARK)
 end
 function c82301904.spop(e,tp,eg,ep,ev,re,r,rp,c)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g1=Duel.SelectMatchingCard(tp,c82301904.spfilter,tp,LOCATION_GRAVE,0,1,1,nil,ATTRIBUTE_LIGHT)
+	local g1=Duel.SelectMatchingCard(tp,c82301904.spfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,1,nil,ATTRIBUTE_LIGHT)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g2=Duel.SelectMatchingCard(tp,c82301904.spfilter,tp,LOCATION_GRAVE,0,1,1,nil,ATTRIBUTE_DARK)
+	local g2=Duel.SelectMatchingCard(tp,c82301904.spfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,1,nil,ATTRIBUTE_DARK)
 	g1:Merge(g2)
 	Duel.Remove(g1,POS_FACEUP,REASON_COST)
 end

@@ -12,11 +12,16 @@ function c82140600.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function c82140600.filter(c,e)
-	return c:IsSetCard(0x107a) and c:IsType(TYPE_MONSTER) and c:IsAbleToRemove() and c:IsCanBeEffectTarget(e)
+	if not c:IsSetCard(0x107a) or not c:IsType(TYPE_MONSTER) or not c:IsAbleToRemove() or not c:IsCanBeEffectTarget(e) then return false end
+	if Duel.IsPlayerAffectedByEffect(c:GetControler(),69832741) then
+		return c:IsFaceup() and c:IsLocation(LOCATION_MZONE)
+	else
+		return c:IsLocation(LOCATION_GRAVE)
+	end
 end
 function c82140600.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
-	local g=Duel.GetMatchingGroup(c82140600.filter,tp,LOCATION_GRAVE,0,nil,e)
+	local g=Duel.GetMatchingGroup(c82140600.filter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil,e)
 	if chk==0 then return g:GetCount()>4
 		and g:IsExists(Card.IsSetCard,1,nil,0xa7) and g:IsExists(Card.IsSetCard,1,nil,0xa8)
 		and Duel.IsExistingMatchingCard(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end

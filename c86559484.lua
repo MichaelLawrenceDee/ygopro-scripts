@@ -25,15 +25,20 @@ function c86559484.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function c86559484.cfilter(c,rac)
-	return c:IsRace(rac) and c:IsAbleToRemoveAsCost()
+	if not c:IsRace(rac) or not c:IsAbleToRemoveAsCost() then return false end
+	if Duel.IsPlayerAffectedByEffect(c:GetControler(),69832741) then
+		return c:IsFaceup() and c:IsLocation(LOCATION_MZONE)
+	else
+		return c:IsLocation(LOCATION_GRAVE)
+	end
 end
 function c86559484.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c86559484.cfilter,tp,LOCATION_GRAVE,0,1,nil,RACE_DRAGON)
-		and Duel.IsExistingMatchingCard(c86559484.cfilter,tp,LOCATION_GRAVE,0,1,nil,RACE_WYRM) end
+	if chk==0 then return Duel.IsExistingMatchingCard(c86559484.cfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,nil,RACE_DRAGON)
+		and Duel.IsExistingMatchingCard(c86559484.cfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,nil,RACE_WYRM) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g1=Duel.SelectMatchingCard(tp,c86559484.cfilter,tp,LOCATION_GRAVE,0,1,1,nil,RACE_DRAGON)
+	local g1=Duel.SelectMatchingCard(tp,c86559484.cfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,1,nil,RACE_DRAGON)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g2=Duel.SelectMatchingCard(tp,c86559484.cfilter,tp,LOCATION_GRAVE,0,1,1,nil,RACE_WYRM)
+	local g2=Duel.SelectMatchingCard(tp,c86559484.cfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,1,nil,RACE_WYRM)
 	g1:Merge(g2)
 	Duel.Remove(g1,POS_FACEUP,REASON_COST)
 end
@@ -41,7 +46,7 @@ function c86559484.spfilter(c,e,tp)
 	return c:IsCode(86559484) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c86559484.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+	if chk==0 then return (Duel.GetLocationCount(tp,LOCATION_MZONE)>0 or Duel.IsPlayerAffectedByEffect(tp,69832741)) 
 		and Duel.IsExistingMatchingCard(c86559484.spfilter,tp,LOCATION_HAND+LOCATION_DECK,0,1,nil,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND+LOCATION_DECK)
 end

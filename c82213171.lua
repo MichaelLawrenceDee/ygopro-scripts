@@ -10,13 +10,18 @@ function c82213171.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function c82213171.cfilter(c)
-	return c:IsAttribute(ATTRIBUTE_DARK) and c:IsAbleToRemoveAsCost()
+	if not c:IsAttribute(ATTRIBUTE_DARK) or not c:IsAbleToRemove() then return false end
+	if Duel.IsPlayerAffectedByEffect(c:GetControler(),69832741) then
+		return c:IsFaceup() and c:IsLocation(LOCATION_MZONE)
+	else
+		return c:IsLocation(LOCATION_GRAVE)
+	end
 end
 function c82213171.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local cg=Duel.SelectMatchingCard(tp,c82213171.cfilter,tp,LOCATION_GRAVE,0,1,63,nil)
-	local ct=Duel.Remove(cg,POS_FACEUP,REASON_COST)
+	local cg=Duel.SelectMatchingCard(tp,c82213171.cfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,63,nil)
+	local ct=Duel.Remove(cg,POS_FACEUP,REASON_EFFECT)
 	if ct>0 and c:IsFaceup() and c:IsRelateToEffect(e) then
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)

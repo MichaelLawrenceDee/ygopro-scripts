@@ -2,7 +2,7 @@
 function c83519853.initial_effect(c)
 	c:SetUniqueOnField(1,0,83519853)
 	--synchro summon
-	aux.AddSynchroProcedure(c,nil,aux.NonTuner(Card.IsSetCard,0x107a),1)
+	aux.AddSynchroProcedure(c,nil,1,1,aux.NonTuner(Card.IsSetCard,0x107a),1,99)
 	c:EnableReviveLimit()
 	--equip
 	local e1=Effect.CreateEffect(c)
@@ -18,7 +18,6 @@ function c83519853.initial_effect(c)
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
 	e2:SetCode(EVENT_BATTLE_DESTROYING)
-	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 	e2:SetCondition(c83519853.regcon)
 	e2:SetOperation(c83519853.regop)
 	c:RegisterEffect(e2)
@@ -35,7 +34,7 @@ function c83519853.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function c83519853.condition(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSummonType(SUMMON_TYPE_SYNCHRO)
+	return e:GetHandler():GetSummonType()==SUMMON_TYPE_SYNCHRO
 end
 function c83519853.filter(c,ec)
 	return c:IsSetCard(0x207a) and c:IsType(TYPE_EQUIP) and c:CheckEquipTarget(ec)

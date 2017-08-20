@@ -25,6 +25,13 @@ function c80796456.initial_effect(c)
 	e2:SetCondition(c80796456.atkcon)
 	e2:SetOperation(c80796456.atkop)
 	c:RegisterEffect(e2)
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_SINGLE)
+	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
+	e3:SetCode(511002571)
+	e3:SetLabelObject(e1)
+	e3:SetLabel(c:GetOriginalCode())
+	c:RegisterEffect(e3)
 end
 c80796456.xyz_number=70
 function c80796456.rmcost(e,tp,eg,ep,ev,re,r,rp,chk)

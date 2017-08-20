@@ -26,13 +26,25 @@ function c85115440.initial_effect(c)
 	e3:SetTarget(c85115440.target)
 	e3:SetOperation(c85115440.operation)
 	c:RegisterEffect(e3)
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_SINGLE)
+	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
+	e4:SetCode(511002571)
+	e4:SetLabelObject(e3)
+	e4:SetLabel(c:GetOriginalCode())
+	c:RegisterEffect(e4)
 end
 function c85115440.ovfilter(c)
 	return c:IsFaceup() and c:IsSetCard(0xf1) and not c:IsCode(85115440)
 end
 function c85115440.xyzop(e,tp,chk)
 	if chk==0 then return Duel.GetFlagEffect(tp,85115440)==0 end
-	Duel.RegisterFlagEffect(tp,85115440,RESET_PHASE+PHASE_END,0,1)
+	if chk==1 then
+		return true,false
+	end
+	if chk==2 then
+		Duel.RegisterFlagEffect(tp,85115440,RESET_PHASE+PHASE_END,0,1)
+	end
 end
 function c85115440.atkfilter(c)
 	return c:IsSetCard(0xf1) and c:GetAttack()>=0

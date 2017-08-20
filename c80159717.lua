@@ -1,7 +1,7 @@
 --ドラグニティナイト－トライデント
 function c80159717.initial_effect(c)
 	--synchro summon
-	aux.AddSynchroProcedure(c,aux.FilterBoolFunction(Card.IsRace,RACE_DRAGON),aux.NonTuner(Card.IsRace,RACE_WINDBEAST),1)
+	aux.AddSynchroProcedure(c,aux.FilterBoolFunction(Card.IsRace,RACE_DRAGON),1,1,aux.NonTuner(Card.IsRace,RACE_WINDBEAST),1,99)
 	c:EnableReviveLimit()
 	--extra
 	local e1=Effect.CreateEffect(c)

@@ -1,7 +1,7 @@
 --超重魔獣キュウ－B
 function c85528209.initial_effect(c)
 	--synchro summon
-	aux.AddSynchroProcedure(c,nil,aux.NonTuner(Card.IsSetCard,0x9a),1)
+	aux.AddSynchroProcedure(c,nil,1,1,aux.NonTuner(Card.IsSetCard,0x9a),1,99)
 	c:EnableReviveLimit()
 	--defense attack
 	local e2=Effect.CreateEffect(c)
@@ -26,5 +26,5 @@ function c85528209.adval(e,c)
 	return Duel.GetMatchingGroupCount(c85528209.ctfilter,c:GetControler(),0,LOCATION_MZONE,nil)*900
 end
 function c85528209.ctfilter(c)
-	return c:IsSummonType(SUMMON_TYPE_SPECIAL)
+	return bit.band(c:GetSummonType(),SUMMON_TYPE_SPECIAL)==SUMMON_TYPE_SPECIAL
 end

@@ -27,12 +27,17 @@ function c83303851.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function c83303851.cfilter(c)
-	return c:IsSetCard(0xaf) and c:IsType(TYPE_MONSTER) and c:IsAbleToRemoveAsCost()
+	if not c:IsSetCard(0xaf) or not c:IsType(TYPE_MONSTER) or not c:IsAbleToRemoveAsCost() then return false end
+	if Duel.IsPlayerAffectedByEffect(c:GetControler(),69832741) then
+		return c:IsFaceup() and c:IsLocation(LOCATION_MZONE)
+	else
+		return c:IsLocation(LOCATION_GRAVE)
+	end
 end
 function c83303851.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c83303851.cfilter,tp,LOCATION_GRAVE,0,2,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(c83303851.cfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,2,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,c83303851.cfilter,tp,LOCATION_GRAVE,0,2,2,nil)
+	local g=Duel.SelectMatchingCard(tp,c83303851.cfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,2,2,nil)
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
 function c83303851.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -43,7 +48,10 @@ end
 function c83303851.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not c:IsRelateToEffect(e) then return end
-	Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+	if Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)==0 and Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) then
+		Duel.SendtoGrave(c,REASON_RULE)
+	end
 end
 function c83303851.descon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnPlayer()~=tp
@@ -88,7 +96,10 @@ function c83303851.desop(e,tp,eg,ep,ev,re,r,rp)
 	if g:GetCount()>0 and Duel.Destroy(g,REASON_EFFECT)~=0 then
 		local c=e:GetHandler()
 		if not c:IsRelateToEffect(e) then return end
-		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+		if Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)==0 and Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+			and c:IsCanBeSpecialSummoned(e,0,tp,false,false) then
+			Duel.SendtoGrave(c,REASON_RULE)
+		end
 	end
 end
 function c83303851.splimit(e,c)

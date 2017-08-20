@@ -11,13 +11,18 @@ function c82542267.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function c82542267.filter(c)
-	return c:IsAbleToRemove() and c:IsType(TYPE_MONSTER)
+	if not c:IsAbleToRemove() or not c:IsType(TYPE_MONSTER) then return false end
+	if Duel.IsPlayerAffectedByEffect(c:GetControler(),69832741) then
+		return c:IsLocation(LOCATION_MZONE)
+	else
+		return c:IsLocation(LOCATION_GRAVE)
+	end
 end
 function c82542267.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(1-tp) and c82542267.filter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(c82542267.filter,tp,0,LOCATION_GRAVE,1,nil) end
+	if chkc then return chkc:IsLocation(LOCATION_MZONE+LOCATION_GRAVE) and chkc:IsControler(1-tp) and c82542267.filter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(c82542267.filter,tp,0,LOCATION_MZONE+LOCATION_GRAVE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectTarget(tp,c82542267.filter,tp,0,LOCATION_GRAVE,1,2,nil)
+	local g=Duel.SelectTarget(tp,c82542267.filter,tp,0,LOCATION_MZONE+LOCATION_GRAVE,1,2,nil)
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,g:GetCount(),0,0)
 end
 function c82542267.activate(e,tp,eg,ep,ev,re,r,rp)

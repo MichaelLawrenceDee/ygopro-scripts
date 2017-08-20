@@ -1,8 +1,7 @@
 --インフェルノイド・ティエラ
 function c82734805.initial_effect(c)
-	--fusion material
 	c:EnableReviveLimit()
-	aux.AddFusionProcCode2FunRep(c,14799437,23440231,aux.FilterBoolFunction(Card.IsFusionSetCard,0xbb),1,63,true,true)
+	aux.AddFusionProcMixRep(c,true,true,aux.FilterBoolFunction(Card.IsFusionSetCard,0xbb),1,99,14799437,23440231)
 	--spsummon success
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(82734805,0))
@@ -20,12 +19,13 @@ function c82734805.initial_effect(c)
 	e3:SetLabelObject(e2)
 	c:RegisterEffect(e3)
 end
+c82734805.material_setcode=0xbb
 function c82734805.valcheck(e,c)
 	local ct=e:GetHandler():GetMaterial():GetClassCount(Card.GetCode)
 	e:GetLabelObject():SetLabel(ct)
 end
 function c82734805.con(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSummonType(SUMMON_TYPE_FUSION)
+	return bit.band(e:GetHandler():GetSummonType(),SUMMON_TYPE_FUSION)==SUMMON_TYPE_FUSION
 end
 function c82734805.tg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local ct=e:GetLabel()
@@ -38,18 +38,13 @@ function c82734805.tg(e,tp,eg,ep,ev,re,r,rp,chk)
 		con5=Duel.IsPlayerCanDiscardDeck(tp,3) and Duel.IsPlayerCanDiscardDeck(1-tp,3)
 	end
 	if ct>=8 then
-		con8=Duel.IsExistingMatchingCard(nil,tp,LOCATION_REMOVED,0,1,nil)
-			and Duel.IsExistingMatchingCard(nil,tp,0,LOCATION_REMOVED,1,nil)
+		con8=Duel.IsExistingMatchingCard(Card.IsFaceup,tp,LOCATION_REMOVED,0,1,nil)
+			and Duel.IsExistingMatchingCard(Card.IsFaceup,tp,0,LOCATION_REMOVED,1,nil)
 	end
 	if ct>=10 then
 		con10=Duel.GetFieldGroupCount(tp,LOCATION_HAND,LOCATION_HAND)>0
 	end
 	if chk==0 then return con3 or con5 or con8 or con10 end
-	local cat=0
-	if ct>=3 or ct>=8 then cat=cat+CATEGORY_TOGRAVE end
-	if ct>=5 then cat=cat+CATEGORY_DECKDES end
-	if ct>=10 then cat=cat+CATEGORY_HANDES end
-	e:SetCategory(cat)
 end
 function c82734805.op(e,tp,eg,ep,ev,re,r,rp)
 	local ct=e:GetLabel()
@@ -79,9 +74,9 @@ function c82734805.op(e,tp,eg,ep,ev,re,r,rp)
 	if ct>=8 then
 		Duel.BreakEffect()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-		local g1=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_REMOVED,0,1,3,nil)
+		local g1=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,LOCATION_REMOVED,0,1,3,nil)
 		Duel.Hint(HINT_SELECTMSG,1-tp,HINTMSG_TOGRAVE)
-		local g2=Duel.SelectMatchingCard(1-tp,nil,1-tp,LOCATION_REMOVED,0,1,3,nil)
+		local g2=Duel.SelectMatchingCard(1-tp,Card.IsFaceup,1-tp,LOCATION_REMOVED,0,1,3,nil)
 		g1:Merge(g2)
 		if g1:GetCount()>0 then
 			Duel.SendtoGrave(g1,REASON_EFFECT+REASON_RETURN)

@@ -2,7 +2,7 @@
 function c83283063.initial_effect(c)
 	c:SetSPSummonOnce(83283063)
 	--synchro summon
-	aux.AddSynchroProcedure(c,c83283063.synfilter,aux.NonTuner(c83283063.synfilter),1)
+	aux.AddSynchroProcedure(c,c83283063.synfilter,1,1,aux.NonTuner(c83283063.synfilter),1,99)
 	c:EnableReviveLimit()
 	--
 	local e1=Effect.CreateEffect(c)
@@ -28,12 +28,17 @@ function c83283063.synfilter(c)
 	return c:IsRace(RACE_ZOMBIE)
 end
 function c83283063.cfilter(c)
-	return c:IsRace(RACE_ZOMBIE) and c:GetBaseAttack()>0 and c:IsAbleToRemoveAsCost()
+	if not c:IsRace(RACE_ZOMBIE) or c:GetBaseAttack()<=0 or not c:IsAbleToRemoveAsCost() then return false end
+	if Duel.IsPlayerAffectedByEffect(c:GetControler(),69832741) then
+		return c:IsFaceup() and c:IsLocation(LOCATION_MZONE)
+	else
+		return c:IsLocation(LOCATION_GRAVE)
+	end
 end
 function c83283063.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c83283063.cfilter,tp,LOCATION_GRAVE,0,1,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(c83283063.cfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,e:GetHandler()) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,c83283063.cfilter,tp,LOCATION_GRAVE,0,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,c83283063.cfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,1,e:GetHandler())
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 	e:SetLabel(g:GetFirst():GetBaseAttack())
 end
@@ -53,7 +58,7 @@ function c83283063.tgcon(e,tp,eg,ep,ev,re,r,rp)
 	return c:IsPreviousLocation(LOCATION_ONFIELD) and c:IsReason(REASON_DESTROY) and c:IsReason(REASON_BATTLE+REASON_EFFECT)
 end
 function c83283063.filter(c)
-	return c:IsFaceup() and c:IsRace(RACE_ZOMBIE) and c:IsDefenseBelow(0)
+	return c:IsFaceup() and c:IsRace(RACE_ZOMBIE) and c:GetDefense()==0
 end
 function c83283063.tgtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_REMOVED) and c83283063.filter(chkc) end
@@ -64,7 +69,7 @@ function c83283063.tgtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function c83283063.tgop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
+	if tc and tc:IsRelateToEffect(e) then
 		Duel.SendtoGrave(tc,REASON_EFFECT+REASON_RETURN)
 	end
 end

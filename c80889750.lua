@@ -2,7 +2,7 @@
 function c80889750.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
-	aux.AddFusionProcFunFunRep(c,c80889750.mfilter1,c80889750.mfilter2,1,63,true)
+	aux.AddFusionProcMixRep(c,true,true,c80889750.mfilter2,1,99,c80889750.mfilter1)
 	--spsummon
 	local e2=Effect.CreateEffect(c)
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
@@ -37,7 +37,7 @@ function c80889750.mfilter2(c)
 	return c:IsFusionSetCard(0xa9) or c:IsFusionSetCard(0xc3)
 end
 function c80889750.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSummonType(SUMMON_TYPE_FUSION)
+	return bit.band(e:GetHandler():GetSummonType(),SUMMON_TYPE_FUSION)==SUMMON_TYPE_FUSION
 end
 function c80889750.spfilter(c,e,tp)
 	return c:IsSetCard(0xad) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
@@ -58,7 +58,7 @@ function c80889750.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 function c80889750.indcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:IsSummonType(SUMMON_TYPE_FUSION) and c:GetMaterialCount()>=3
+	return bit.band(c:GetSummonType(),SUMMON_TYPE_FUSION)==SUMMON_TYPE_FUSION and c:GetMaterialCount()>=3
 end
 function c80889750.indop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

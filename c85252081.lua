@@ -37,6 +37,13 @@ function c85252081.initial_effect(c)
 	e4:SetTarget(c85252081.mttg)
 	e4:SetOperation(c85252081.mtop)
 	c:RegisterEffect(e4)
+	local e5=Effect.CreateEffect(c)
+	e5:SetType(EFFECT_TYPE_SINGLE)
+	e5:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
+	e5:SetCode(511002571)
+	e5:SetLabelObject(e2)
+	e5:SetLabel(c:GetOriginalCode())
+	c:RegisterEffect(e5)
 end
 function c85252081.atcon(e)
 	return e:GetHandler():GetOverlayCount()==0

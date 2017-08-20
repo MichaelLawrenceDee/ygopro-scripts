@@ -33,6 +33,7 @@ function c86196216.filter1(c,e,tp)
 		and Duel.IsExistingMatchingCard(c86196216.filter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,c,c:GetRank()*2)
 end
 function c86196216.filter2(c,e,tp,mc,rk)
+	if c.rum_limit and not c.rum_limit(mc,e) then return false end
 	return c:GetRank()==rk and mc:IsCanBeXyzMaterial(c)
 		and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)
 end
@@ -49,7 +50,7 @@ end
 function c86196216.activate(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local tc=Duel.GetFirstTarget()
-	if not tc:IsRelateToEffect(e) or tc:IsImmuneToEffect(e) then return end
+	if not tc or not tc:IsRelateToEffect(e) or tc:IsImmuneToEffect(e) then return end
 	if Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)==0 then return end
 	if Duel.GetLocationCountFromEx(tp,tp,tc)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)

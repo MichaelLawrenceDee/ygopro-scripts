@@ -29,12 +29,17 @@ function c85028288.efilter(e,re,rp)
 	return re:GetHandler():IsType(TYPE_TRAP+TYPE_MONSTER)
 end
 function c85028288.cfilter(c)
-	return c:IsAttackBelow(1700) and c:IsSetCard(0x22) and c:IsAbleToRemoveAsCost()
+	if not c:IsAttackBelow(1700) or not c:IsSetCard(0x22) or not c:IsAbleToRemoveAsCost() then return false end
+	if Duel.IsPlayerAffectedByEffect(c:GetControler(),69832741) then
+		return c:IsFaceup() and c:IsLocation(LOCATION_MZONE)
+	else
+		return c:IsLocation(LOCATION_GRAVE)
+	end
 end
 function c85028288.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c85028288.cfilter,tp,LOCATION_GRAVE,0,1,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(c85028288.cfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,e:GetHandler()) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,c85028288.cfilter,tp,LOCATION_GRAVE,0,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,c85028288.cfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,1,e:GetHandler())
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
 function c85028288.atkop(e,tp,eg,ep,ev,re,r,rp)

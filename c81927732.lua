@@ -32,6 +32,13 @@ function c81927732.initial_effect(c)
 	e3:SetTarget(c81927732.destg)
 	e3:SetOperation(c81927732.desop)
 	c:RegisterEffect(e3)
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_SINGLE)
+	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
+	e4:SetCode(511002571)
+	e4:SetLabel(c:GetOriginalCode())
+	e4:SetLabelObject(e1)
+	c:RegisterEffect(e4)
 end
 function c81927732.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsAbleToEnterBP() and not e:GetHandler():IsHasEffect(EFFECT_ATTACK_ALL)
@@ -54,7 +61,7 @@ end
 function c81927732.adcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local bc=c:GetBattleTarget()
-	return bc and bc:IsFaceup() and bc:IsSummonType(SUMMON_TYPE_SPECIAL)
+	return bc and bc:IsFaceup() and bit.band(bc:GetSummonType(),SUMMON_TYPE_SPECIAL)==SUMMON_TYPE_SPECIAL
 end
 function c81927732.adop(e,tp,eg,ep,ev,re,r,rp)
 	local bc=e:GetHandler():GetBattleTarget()

@@ -26,7 +26,7 @@ function c80244114.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return rp~=tp and e:GetHandler():IsPreviousLocation(LOCATION_ONFIELD) and e:GetHandler():IsReason(REASON_DESTROY)
 end
 function c80244114.spfilter(c,e,tp)
-	return c:IsCode(44508094) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE)
+	return c:IsCode(44508094) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c80244114.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c80244114.spfilter(chkc,e,tp) end
@@ -42,7 +42,8 @@ function c80244114.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c80244114.indcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost() end
+	if chk==0 then return not Duel.IsPlayerAffectedByEffect(e:GetHandlerPlayer(),69832741) 
+		and e:GetHandler():IsAbleToRemoveAsCost() end
 	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_COST)
 end
 function c80244114.indfilter(c)

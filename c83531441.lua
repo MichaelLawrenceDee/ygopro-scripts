@@ -32,6 +32,13 @@ function c83531441.initial_effect(c)
 	e3:SetTarget(c83531441.thtg)
 	e3:SetOperation(c83531441.thop)
 	c:RegisterEffect(e3)
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_SINGLE)
+	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
+	e4:SetCode(511002571)
+	e4:SetLabelObject(e1)
+	e4:SetLabel(c:GetOriginalCode())
+	c:RegisterEffect(e4)
 end
 function c83531441.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanDiscardDeckAsCost(tp,1) and e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end

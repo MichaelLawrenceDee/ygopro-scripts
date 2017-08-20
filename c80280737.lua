@@ -11,19 +11,15 @@ function c80280737.initial_effect(c)
 	e1:SetOperation(c80280737.activate)
 	c:RegisterEffect(e1)
 end
-c80280737.list={[44508094]=61257789,[70902743]=77336644,[6021033]=1764972,
-				[31924889]=14553285,[23693634]=38898779,[95526884]=37169670}
 function c80280737.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	e:SetLabel(1)
 	return true
 end
 function c80280737.filter1(c,e,tp)
-	local code=c:GetCode()
-	local tcode=c80280737.list[code]
-	return tcode and c:IsType(TYPE_SYNCHRO) and Duel.IsExistingMatchingCard(c80280737.filter2,tp,LOCATION_DECK,0,1,nil,tcode,e,tp)
+	return c:IsType(TYPE_SYNCHRO) and Duel.IsExistingMatchingCard(c80280737.filter2,tp,LOCATION_DECK,0,1,nil,c:GetCode(),e,tp)
 end
 function c80280737.filter2(c,tcode,e,tp)
-	return c:IsCode(tcode) and c:IsCanBeSpecialSummoned(e,0,tp,true,false)
+	return c:IsSetCard(0x104f) and c.assault_mode and c.assault_mode=tcode and c:IsCanBeSpecialSummoned(e,0,tp,true,false)
 end
 function c80280737.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
@@ -40,8 +36,7 @@ end
 function c80280737.activate(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local code=e:GetLabel()
-	local tcode=c80280737.list[code]
-	local tc=Duel.GetFirstMatchingCard(c80280737.filter2,tp,LOCATION_DECK,0,nil,tcode,e,tp)
+	local tc=Duel.GetFirstMatchingCard(c80280737.filter2,tp,LOCATION_DECK,0,nil,code,e,tp)
 	if tc and Duel.SpecialSummon(tc,0,tp,tp,true,false,POS_FACEUP_ATTACK)>0 then
 		tc:CompleteProcedure()
 	end

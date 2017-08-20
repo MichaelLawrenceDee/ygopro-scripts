@@ -1,8 +1,8 @@
 --キメラテック・ランページ・ドラゴン
 function c84058253.initial_effect(c)
-	--fusion material
 	c:EnableReviveLimit()
-	aux.AddFusionProcFunRep2(c,aux.FilterBoolFunction(Card.IsFusionSetCard,0x1093),2,63,false)
+	--fusion material
+	aux.AddFusionProcMixRep(c,false,false,aux.FilterBoolFunction(Card.IsFusionSetCard,0x1093),2,99)
 	--destroy
 	local e2=Effect.CreateEffect(c)
 	e2:SetCategory(CATEGORY_DESTROY)
@@ -23,8 +23,9 @@ function c84058253.initial_effect(c)
 	e3:SetOperation(c84058253.tgop)
 	c:RegisterEffect(e3)
 end
+c84058253.material_setcode=0x1093
 function c84058253.descon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSummonType(SUMMON_TYPE_FUSION)
+	return bit.band(e:GetHandler():GetSummonType(),SUMMON_TYPE_FUSION)==SUMMON_TYPE_FUSION
 end
 function c84058253.desfilter(c)
 	return c:IsType(TYPE_SPELL+TYPE_TRAP)
