@@ -14,6 +14,13 @@ function c92918648.initial_effect(c)
 	e1:SetTarget(c92918648.target)
 	e1:SetOperation(c92918648.operation)
 	c:RegisterEffect(e1)
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_SINGLE)
+	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
+	e2:SetCode(511002571)
+	e2:SetLabel(c:GetOriginalCode())
+	e2:SetLabelObject(e1)
+	c:RegisterEffect(e2)
 end
 function c92918648.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
@@ -36,6 +43,5 @@ function c92918648.operation(e,tp,eg,ep,ev,re,r,rp)
 	if ct==0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local g=Duel.SelectMatchingCard(tp,c92918648.filter,tp,0,LOCATION_ONFIELD,1,ct,nil)
-	Duel.HintSelection(g)
 	Duel.Destroy(g,REASON_EFFECT)
 end

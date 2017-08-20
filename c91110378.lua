@@ -1,17 +1,17 @@
 --光天使スローネ
 function c91110378.initial_effect(c)
-	Duel.EnableGlobalFlag(GLOBALFLAG_XMAT_COUNT_LIMIT)
-	--xyz limit
+	--xyz
 	local e1=Effect.CreateEffect(c)
+	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CANNOT_DISABLE)
-	e1:SetCode(EFFECT_XYZ_LEVEL)
-	e1:SetValue(c91110378.xyz_level)
+	e1:SetCode(91110378)
+	e1:SetLabel(0x3) --0x1 >, 0x2 =, 0x4 <
+	e1:SetValue(3)
 	c:RegisterEffect(e1)
 	--spsummon
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(91110378,0))
-	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_DRAW)
+	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetCode(EVENT_SUMMON_SUCCESS)
@@ -23,9 +23,6 @@ function c91110378.initial_effect(c)
 	local e3=e2:Clone()
 	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e3)
-end
-function c91110378.xyz_level(e,c,rc)
-	return 0x3000+c:GetLevel()
 end
 function c91110378.cfilter(c,tp)
 	return c:IsFaceup() and c:IsSetCard(0x86) and c:GetSummonPlayer()==tp

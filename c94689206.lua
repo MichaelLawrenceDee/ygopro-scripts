@@ -39,17 +39,23 @@ function c94689206.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 function c94689206.spfilter(c)
-	return c:IsAttribute(ATTRIBUTE_EARTH) and c:IsAbleToRemoveAsCost()
+	if not c:IsAttribute(ATTRIBUTE_EARTH) or not c:IsAbleToRemoveAsCost() then return false end
+	if c:IsLocation(LOCATION_HAND) then return true end
+	if Duel.IsPlayerAffectedByEffect(c:GetControler(),69832741) then
+		return c:IsFaceup() and c:IsLocation(LOCATION_MZONE)
+	else
+		return c:IsLocation(LOCATION_GRAVE)
+	end
 end
 function c94689206.spcon(e,c)
 	if c==nil then return true end
 	local tp=c:GetControler()
 	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingMatchingCard(c94689206.spfilter,tp,LOCATION_GRAVE+LOCATION_HAND,0,3,c)
+		and Duel.IsExistingMatchingCard(c94689206.spfilter,tp,LOCATION_GRAVE+LOCATION_MZONE+LOCATION_HAND,0,3,c)
 end
 function c94689206.spop(e,tp,eg,ep,ev,re,r,rp,c)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,c94689206.spfilter,tp,LOCATION_GRAVE+LOCATION_HAND,0,3,3,c)
+	local g=Duel.SelectMatchingCard(tp,c94689206.spfilter,tp,LOCATION_GRAVE+LOCATION_MZONE+LOCATION_HAND,0,3,3,c)
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
 function c94689206.indesval(e,re,r,rp)

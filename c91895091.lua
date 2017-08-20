@@ -25,6 +25,13 @@ function c91895091.initial_effect(c)
 	e2:SetTarget(c91895091.sptg)
 	e2:SetOperation(c91895091.spop)
 	c:RegisterEffect(e2)
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_SINGLE)
+	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
+	e3:SetCode(511002571)
+	e3:SetLabelObject(e1)
+	e3:SetLabel(c:GetOriginalCode())
+	c:RegisterEffect(e3)
 end
 function c91895091.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
@@ -62,7 +69,7 @@ function c91895091.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return c:IsRelateToBattle() and c:GetOverlayCount()>0
 end
 function c91895091.spfilter(c,e,tp)
-	return c:IsAttribute(ATTRIBUTE_EARTH) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE)
+	return c:IsAttribute(ATTRIBUTE_EARTH) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c91895091.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c91895091.spfilter(chkc,e,tp) end

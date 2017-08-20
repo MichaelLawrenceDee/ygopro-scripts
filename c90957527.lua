@@ -2,7 +2,8 @@
 function c90957527.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
-	aux.AddFusionProcCodeFun(c,79580323,aux.FilterBoolFunction(Card.IsFusionSetCard,0x19),1,true,true)
+	aux.AddFusionProcMix(c,true,true,79580323,aux.FilterBoolFunction(Card.IsFusionSetCard,0x19))
+	aux.AddContactFusion(c,c3779662.contactfil,c3779662.contactop)
 	--spsummon condition
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -10,16 +11,6 @@ function c90957527.initial_effect(c)
 	e1:SetCode(EFFECT_SPSUMMON_CONDITION)
 	e1:SetValue(c90957527.splimit)
 	c:RegisterEffect(e1)
-	--special summon rule
-	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(90957527,1))
-	e2:SetType(EFFECT_TYPE_FIELD)
-	e2:SetCode(EFFECT_SPSUMMON_PROC)
-	e2:SetProperty(EFFECT_FLAG_UNCOPYABLE)
-	e2:SetRange(LOCATION_EXTRA)
-	e2:SetCondition(c90957527.sprcon)
-	e2:SetOperation(c90957527.sprop)
-	c:RegisterEffect(e2)
 	--damage
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(90957527,0))
@@ -43,40 +34,15 @@ function c90957527.initial_effect(c)
 	e4:SetOperation(c90957527.spop)
 	c:RegisterEffect(e4)
 end
+function c90957527.contactfil(tp)
+	return Duel.GetMatchingGroup(Card.IsAbleToDeckOrExtraAsCost,tp,LOCATION_ONFIELD,0,nil)
+end
+function c90957527.contactop(g,tp)
+	Duel.ConfirmCards(1-tp,g)
+	Duel.SendtoDeck(g,nil,2,REASON_COST+REASON_MATERIAL)
+end
 function c90957527.splimit(e,se,sp,st)
 	return e:GetHandler():GetLocation()~=LOCATION_EXTRA
-end
-function c90957527.cfilter(c)
-	return (c:IsFusionCode(79580323) or c:IsFusionSetCard(0x19) and c:IsType(TYPE_MONSTER))
-		and c:IsCanBeFusionMaterial() and c:IsAbleToDeckOrExtraAsCost()
-end
-function c90957527.spfilter1(c,tp,g)
-	return g:IsExists(c90957527.spfilter2,1,c,tp,c)
-end
-function c90957527.spfilter2(c,tp,mc)
-	return (c:IsFusionCode(79580323) and mc:IsFusionSetCard(0x19) and mc:IsType(TYPE_MONSTER)
-		or c:IsFusionSetCard(0x19) and c:IsType(TYPE_MONSTER) and mc:IsFusionCode(79580323))
-		and Duel.GetLocationCountFromEx(tp,tp,Group.FromCards(c,mc))>0
-end
-function c90957527.sprcon(e,c)
-	if c==nil then return true end
-	local tp=c:GetControler()
-	local g=Duel.GetMatchingGroup(c90957527.cfilter,tp,LOCATION_ONFIELD,0,nil)
-	return g:IsExists(c90957527.spfilter1,1,nil,tp,g)
-end
-function c90957527.sprop(e,tp,eg,ep,ev,re,r,rp,c)
-	local g=Duel.GetMatchingGroup(c90957527.cfilter,tp,LOCATION_ONFIELD,0,nil)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local g1=g:FilterSelect(tp,c90957527.spfilter1,1,1,nil,tp,g)
-	local mc=g1:GetFirst()
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local g2=g:FilterSelect(tp,c90957527.spfilter2,1,1,mc,tp,mc)
-	g1:Merge(g2)
-	local cg=g1:Filter(Card.IsFacedown,nil)
-	if cg:GetCount()>0 then
-		Duel.ConfirmCards(1-tp,cg)
-	end
-	Duel.SendtoDeck(g1,nil,2,REASON_COST)
 end
 function c90957527.damcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -113,12 +79,9 @@ function c90957527.filter(c,e,tp)
 	return not c:IsCode(79580323) and c:IsSetCard(0x19) and c:IsCanBeSpecialSummoned(e,121,tp,false,false)
 end
 function c90957527.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then
-		local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-		if e:GetHandler():GetSequence()<5 then ft=ft+1 end
-		return ft>1 and not Duel.IsPlayerAffectedByEffect(tp,59822133)
-			and Duel.IsExistingMatchingCard(c90957527.filter,tp,LOCATION_DECK,0,2,nil,e,tp)
-	end
+	if chk==0 then return not Duel.IsPlayerAffectedByEffect(tp,59822133)
+		and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.IsExistingMatchingCard(c90957527.filter,tp,LOCATION_DECK,0,2,nil,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,2,tp,LOCATION_DECK)
 end
 function c90957527.spop(e,tp,eg,ep,ev,re,r,rp)

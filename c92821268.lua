@@ -18,7 +18,7 @@ function c92821268.cfilter(c,tp)
 		and c:GetPreviousControler()==tp and c:IsAbleToRemoveAsCost()
 end
 function c92821268.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return eg:IsExists(c92821268.cfilter,1,nil,tp) end
+	if chk==0 then return not Duel.IsPlayerAffectedByEffect(tp,69832741) and eg:IsExists(c92821268.cfilter,1,nil,tp) end
 	local g=eg:Filter(c92821268.cfilter,nil,tp)
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
@@ -30,5 +30,8 @@ end
 function c92821268.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not c:IsRelateToEffect(e) then return end
-	Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+	if Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)==0 and Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) then
+		Duel.SendtoGrave(c,REASON_RULE)
+	end
 end

@@ -15,6 +15,13 @@ function c95992081.initial_effect(c)
 	e1:SetTarget(c95992081.target)
 	e1:SetOperation(c95992081.operation)
 	c:RegisterEffect(e1)
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_SINGLE)
+	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
+	e2:SetCode(511002571)
+	e2:SetLabelObject(e1)
+	e2:SetLabel(c:GetOriginalCode())
+	c:RegisterEffect(e2)
 end
 function c95992081.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end

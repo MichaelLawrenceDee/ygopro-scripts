@@ -2,6 +2,8 @@
 function c94977269.initial_effect(c)
 	Duel.EnableGlobalFlag(GLOBALFLAG_SPSUMMON_COUNT)
 	c:EnableReviveLimit()
+	c94977269.min_material_count=2
+	c94977269.max_material_count=2
 	--fusion material
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -46,70 +48,145 @@ function c94977269.initial_effect(c)
 	e5:SetOperation(c94977269.thop)
 	c:RegisterEffect(e5)
 end
-function c94977269.ffilter(c,fc)
-	return (c94977269.ffilter1(c) or c94977269.ffilter2(c)) and c:IsCanBeFusionMaterial(fc) and not c:IsHasEffect(6205579)
-end
-function c94977269.exfilter(c,fc)
-	return c:IsFaceup() and c94977269.ffilter(c,fc)
-end
 function c94977269.ffilter1(c)
-	return c:IsFusionSetCard(0x9d)
+	return (c:IsFusionSetCard(0x9d) or c:IsHasEffect(511002961)) and not c:IsHasEffect(6205579)
 end
 function c94977269.ffilter2(c)
-	return c:IsFusionAttribute(ATTRIBUTE_DARK) or c:IsHasEffect(4904633)
+	return not c:IsHasEffect(6205579) and (c:IsHasEffect(511002961) or c:IsFusionAttribute(ATTRIBUTE_DARK) or c:IsHasEffect(4904633))
 end
-function c94977269.spfilter1(c,tp,mg,exg)
-	return mg:IsExists(c94977269.spfilter2,1,c,tp,c) or (exg and exg:IsExists(c94977269.spfilter2,1,c,tp,c))
+function c94977269.exfilter(c,g,fc)
+	return c:IsFaceup() and c:IsCanBeFusionMaterial(fc) and not g:IsContains(c) and (c94977269.ffilter1(c) or c94977269.ffilter2(c))
 end
-function c94977269.spfilter2(c,tp,mc)
-	return (c94977269.ffilter1(c) and c94977269.ffilter2(mc)
-		or c94977269.ffilter2(c) and c94977269.ffilter1(mc))
-		and Duel.GetLocationCountFromEx(tp,tp,Group.FromCards(c,mc))>0
+function c94977269.ffilter(c,fc)
+	return c:IsCanBeFusionMaterial(fc) and (c94977269.ffilter1(c) or c94977269.ffilter2(c))
+end
+function c94977269.filterchk(c,tp,mg,sg,exg,fc,chkf)
+	local res
+	local rg=Group.CreateGroup()
+	if c:IsHasEffect(73941492+TYPE_FUSION) then
+		local eff={c:GetCardEffect(73941492+TYPE_FUSION)}
+		for i,f in ipairs(eff) do
+			if sg:IsExists(Auxiliary.TuneMagFilter,1,c,f,f:GetValue()) then
+				mg:Merge(rg)
+				return false
+			end
+			local sg2=mg:Filter(function(c) return not Auxiliary.TuneMagFilterFus(c,f,f:GetValue()) end,nil)
+			rg:Merge(sg2)
+			mg:Sub(sg2)
+		end
+	end
+	local g2=sg:Filter(Card.IsHasEffect,nil,73941492+TYPE_FUSION)
+	if g2:GetCount()>0 then
+		local tc=g2:GetFirst()
+		while tc do
+			local eff={tc:GetCardEffect(73941492+TYPE_FUSION)}
+			for i,f in ipairs(eff) do
+				if Auxiliary.TuneMagFilter(c,f,f:GetValue()) then
+					mg:Merge(rg)
+					return false
+				end
+			end
+			tc=g2:GetNext()
+		end	
+	end
+	sg:AddCard(c)
+	if sg:GetCount()<2 then
+		if exg:IsContains(c) then
+			mg:Sub(exg)
+			rg:Merge(exg)
+		end
+		res=mg:IsExists(c94977269.filterchk,1,sg,tp,mg,sg,exg,fc,chkf)
+	else
+		res=aux.FCheckMixGoal(tp,sg,fc,true,true,chkf,c94977269.ffilter1,c94977269.ffilter2)
+	end
+	sg:RemoveCard(c)
+	mg:Merge(rg)
+	return res
 end
 function c94977269.fuscon(e,g,gc,chkf)
 	if g==nil then return true end
+	local chkf=bit.band(chkf,0xff)
 	local c=e:GetHandler()
 	local mg=g:Filter(c94977269.ffilter,nil,c)
+	local exg=Group.CreateGroup()
 	local tp=e:GetHandlerPlayer()
 	local fc=Duel.GetFieldCard(tp,LOCATION_SZONE,5)
-	local exg=nil
 	if fc and fc:IsHasEffect(81788994) and fc:IsCanRemoveCounter(tp,0x16,3,REASON_EFFECT) then
-		exg=Duel.GetMatchingGroup(c94977269.exfilter,tp,0,LOCATION_MZONE,mg,c)
+		exg=Duel.GetMatchingGroup(c94977269.exfilter,tp,0,LOCATION_MZONE,nil,g,c)
+		mg:Merge(exg)
 	end
 	if gc then
-		if not mg:IsContains(gc) then return false end
-		return c94977269.spfilter1(gc,tp,mg,exg)
+		return mg:IsContains(gc) and c94977269.filterchk(gc,tp,mg,Group.CreateGroup(),exg,c,chkf)
 	end
-	return mg:IsExists(c94977269.spfilter1,1,nil,tp,mg,exg)
+	local sg2=Group.CreateGroup()
+	return mg:IsExists(c94977269.filterchk,1,nil,tp,mg,Group.CreateGroup(),exg,c,chkf)
+end
+function c94977269.filterchk2(c,tp,mg,sg,exg,fc,chkf)
+	return not exg:IsContains(c) and c94977269.filterchk(c,tp,mg,sg,exg,fc,chkf)
+end
+function c94977269.filterchk3(c,tp,mg,sg,exg,fc,chkf)
+	return exg:IsContains(c) and c94977269.filterchk(c,tp,mg,sg,exg,fc,chkf)
 end
 function c94977269.fusop(e,tp,eg,ep,ev,re,r,rp,gc,chkf)
 	local c=e:GetHandler()
-	local mg=eg:Filter(c94977269.ffilter,nil,c)
 	local fc=Duel.GetFieldCard(tp,LOCATION_SZONE,5)
-	local exg=nil
+	local tp=e:GetHandlerPlayer()
+	local exg=Group.CreateGroup()
+	local mg=eg:Filter(c94977269.ffilter,nil,c)
+	local p=tp
+	local sfhchk=false
+	local urg=Group.CreateGroup()
 	if fc and fc:IsHasEffect(81788994) and fc:IsCanRemoveCounter(tp,0x16,3,REASON_EFFECT) then
-		exg=Duel.GetMatchingGroup(c94977269.exfilter,tp,0,LOCATION_MZONE,mg,c)
+		local sg=Duel.GetMatchingGroup(c94977269.exfilter,tp,0,LOCATION_MZONE,nil,eg)
+		exg:Merge(sg)
+		mg:Merge(sg)
 	end
-	local g=nil
+	if Duel.IsPlayerAffectedByEffect(tp,511004008) and Duel.SelectYesNo(1-tp,65) then
+		p=1-tp Duel.ConfirmCards(1-tp,g)
+		if mg:IsExists(Card.IsLocation,1,nil,LOCATION_HAND) then sfhchk=true end
+	end
+	local sg
 	if gc then
-		g=Group.FromCards(gc)
-		mg:RemoveCard(gc)
+		sg=Group.FromCards(gc)
+		urg:AddCard(gc)
+		if exg:IsContains(gc) then
+			mg:Sub(exg)
+			fc:RemoveCounter(tp,0x16,3,REASON_EFFECT)
+		end
 	else
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FMATERIAL)
-		g=mg:FilterSelect(tp,c94977269.spfilter1,1,1,nil,tp,mg,exg)
-		mg:Sub(g)
+		sg=Group.CreateGroup()
 	end
-	if exg and (mg:GetCount()==0 or (exg:GetCount()>0 and Duel.SelectYesNo(tp,aux.Stringid(81788994,0)))) then
-		fc:RemoveCounter(tp,0x16,3,REASON_EFFECT)
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FMATERIAL)
-		local sg=exg:FilterSelect(tp,c94977269.spfilter2,1,1,nil,tp,g:GetFirst())
-		g:Merge(sg)
-	else
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FMATERIAL)
-		local sg=mg:FilterSelect(tp,c94977269.spfilter2,1,1,nil,tp,g:GetFirst())
-		g:Merge(sg)
+	while sg:GetCount()<2 do
+		local tg=mg:Filter(c94977269.filterchk2,sg,tp,mg,sg,exg,c,chkf)
+		local tg2=mg:Filter(c94977269.filterchk3,sg,tp,mg,sg,exg,c,chkf)
+		if tg2:GetCount()>0 then
+			tg:AddCard(fc)
+		end
+		Duel.Hint(HINT_SELECTMSG,p,HINTMSG_FMATERIAL)
+		local tc=Group.SelectUnselect(tg,sg,p)
+		if fc then
+			tg:RemoveCard(fc)
+		end
+		if not tc then break end
+		if tc==fc then
+			fc:RemoveCounter(tp,0x16,3,REASON_EFFECT)
+			repeat
+				tc=Group.SelectUnselect(tg2,sg,p)
+			until not sg:IsContains(tc)
+			mg:Sub(exg)
+			urg:AddCard(tc)
+			sg:AddCard(tc)
+		end
+		if not urg:IsContains(tc) then
+			if not sg:IsContains(tc) then
+				sg:AddCard(tc)
+			else
+				sg:RemoveCard(tc)
+			end
+		end
 	end
-	Duel.SetFusionMaterial(g)
+	if sfhchk then Duel.ShuffleHand(tp) end
+	Duel.SetFusionMaterial(sg)
 end
 function c94977269.splimit(e,se,sp,st)
 	return bit.band(st,SUMMON_TYPE_FUSION)==SUMMON_TYPE_FUSION

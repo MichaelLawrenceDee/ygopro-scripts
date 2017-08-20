@@ -32,18 +32,23 @@ function c90951921.splimit(e,c,sump,sumtype,sumpos,targetp,se)
 	return not c:IsSetCard(0x70)
 end
 function c90951921.filter(c)
-	return c:IsType(TYPE_MONSTER) and c:IsSetCard(0x70) and c:IsAbleToRemove()
+	if not c:IsType(TYPE_MONSTER) or not c:IsSetCard(0x70) or not c:IsAbleToRemove() then return false end
+	if Duel.IsPlayerAffectedByEffect(c:GetControler(),69832741) then
+		return c:IsFaceup() and c:IsLocation(LOCATION_MZONE)
+	else
+		return c:IsLocation(LOCATION_GRAVE)
+	end
 end
 function c90951921.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c90951921.filter(chkc) end
+	if chkc then return chkc:IsLocation(LOCATION_MZONE+LOCATION_GRAVE) and chkc:IsControler(tp) and c90951921.filter(chkc) end
 	if chk==0 then
 		if not Duel.IsPlayerCanDiscardDeck(tp,2)
-			or not Duel.IsExistingTarget(c90951921.filter,tp,LOCATION_GRAVE,0,1,nil) then return false end
+			or not Duel.IsExistingTarget(c90951921.filter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,nil) then return false end
 		local g=Duel.GetDecktopGroup(tp,2)
 		return g:FilterCount(Card.IsAbleToHand,nil)>0
 	end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectTarget(tp,c90951921.filter,tp,LOCATION_GRAVE,0,1,1,nil)
+	local g=Duel.SelectTarget(tp,c90951921.filter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,0,LOCATION_DECK)
 end

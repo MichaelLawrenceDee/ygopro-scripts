@@ -13,7 +13,7 @@ function c91250514.initial_effect(c)
 end
 function c91250514.condition(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsPreviousLocation(LOCATION_ONFIELD)
-		and e:GetHandler():IsSummonType(SUMMON_TYPE_ADVANCE)
+		and bit.band(e:GetHandler():GetSummonType(),SUMMON_TYPE_ADVANCE)==SUMMON_TYPE_ADVANCE
 end
 function c91250514.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
@@ -23,7 +23,7 @@ end
 function c91250514.operation(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Draw(tp,2,REASON_EFFECT)
 	Duel.BreakEffect()
-	if e:GetHandler():IsRelateToEffect(e) then
+	if e:GetHandler():IsRelateToEffect(e) and not Duel.IsPlayerAffectedByEffect(e:GetHandlerPlayer(),69832741) then
 		Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_EFFECT)
 	end
 end

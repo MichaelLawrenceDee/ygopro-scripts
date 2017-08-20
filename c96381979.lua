@@ -36,9 +36,16 @@ function c96381979.initial_effect(c)
 	e3:SetOperation(c96381979.spop)
 	e3:SetValue(c96381979.valcheck)
 	c:RegisterEffect(e3)
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_SINGLE)
+	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
+	e4:SetCode(511002571)
+	e4:SetLabelObject(e2)
+	e4:SetLabel(c:GetOriginalCode())
+	c:RegisterEffect(e4)
 end
 function c96381979.setcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSummonType(SUMMON_TYPE_XYZ)
+	return e:GetHandler():GetSummonType()==SUMMON_TYPE_XYZ
 end
 function c96381979.filter(c)
 	return c:IsSetCard(0x7c) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSSetable()
@@ -103,7 +110,7 @@ function c96381979.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SendtoGrave(g,REASON_COST)
 end
 function c96381979.spfilter(c,e,tp)
-	return c:IsLevelBelow(4) and c:IsRace(RACE_BEASTWARRIOR) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE)
+	return c:IsLevelBelow(4) and c:IsRace(RACE_BEASTWARRIOR) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c96381979.afilter1(c,g)
 	return g:IsExists(c96381979.afilter2,1,c,c:GetAttack())

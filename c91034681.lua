@@ -1,7 +1,7 @@
 --デストーイ・デアデビル
 function c91034681.initial_effect(c)
 	c:EnableReviveLimit()
-	aux.AddFusionProcFun2(c,aux.FilterBoolFunction(Card.IsFusionSetCard,0xc3),aux.FilterBoolFunction(Card.IsFusionSetCard,0xa9),true)
+	aux.AddFusionProcMix(c,true,true,aux.FilterBoolFunction(Card.IsFusionSetCard,0xc3),aux.FilterBoolFunction(Card.IsFusionSetCard,0xa9))
 	--damage after destroying
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(91034681,0))

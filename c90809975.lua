@@ -31,7 +31,7 @@ function c90809975.initial_effect(c)
 	c:RegisterEffect(e2)
 	--to hand
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(90809975,2))
+	e3:SetDescription(aux.Stringid(90809975,3))
 	e3:SetCategory(CATEGORY_TOHAND)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
@@ -39,6 +39,13 @@ function c90809975.initial_effect(c)
 	e3:SetTarget(c90809975.thtg)
 	e3:SetOperation(c90809975.thop)
 	c:RegisterEffect(e3)
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_SINGLE)
+	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
+	e4:SetCode(511002571)
+	e4:SetLabelObject(e1)
+	e4:SetLabel(c:GetOriginalCode())
+	c:RegisterEffect(e4)
 end
 function c90809975.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
@@ -92,14 +99,13 @@ function c90809975.negop(e,tp,eg,ep,ev,re,r,rp)
 	if not Duel.NegateActivation(ev) then return end
 	if rc:IsRelateToEffect(re) and Duel.Destroy(eg,REASON_EFFECT)~=0 and not rc:IsLocation(LOCATION_HAND+LOCATION_DECK) then
 		if rc:IsType(TYPE_MONSTER) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-			and (not rc:IsLocation(LOCATION_EXTRA) or Duel.GetLocationCountFromEx(tp)>0)
 			and rc:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEDOWN_DEFENSE)
-			and Duel.SelectYesNo(tp,aux.Stringid(90809975,3)) then
+			and Duel.SelectYesNo(tp,aux.Stringid(90809975,2)) then
 			Duel.BreakEffect()
 			Duel.SpecialSummon(rc,0,tp,tp,false,false,POS_FACEDOWN_DEFENSE)
 			Duel.ConfirmCards(1-tp,rc)
 		elseif (rc:IsType(TYPE_FIELD) or Duel.GetLocationCount(tp,LOCATION_SZONE)>0)
-			and rc:IsSSetable() and Duel.SelectYesNo(tp,aux.Stringid(90809975,4)) then
+			and rc:IsSSetable() and Duel.SelectYesNo(tp,aux.Stringid(90809975,2)) then
 			Duel.BreakEffect()
 			Duel.SSet(tp,rc)
 			Duel.ConfirmCards(1-tp,rc)
@@ -118,7 +124,7 @@ function c90809975.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function c90809975.thop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
+	if tc and tc:IsRelateToEffect(e) then
 		Duel.SendtoHand(tc,nil,REASON_EFFECT)
 	end
 end

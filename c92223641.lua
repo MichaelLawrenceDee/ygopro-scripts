@@ -26,7 +26,7 @@ end
 function c92223641.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		local rc=c92223641.filter(eg,tp)
-		return rc and rc:IsAbleToRemoveAsCost()
+		return rc and not Duel.IsPlayerAffectedByEffect(rc:GetControler(),69832741) and rc:IsAbleToRemoveAsCost()
 	end
 	local rc=c92223641.filter(eg,tp)
 	e:SetLabel(rc:GetAttack())

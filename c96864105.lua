@@ -23,6 +23,13 @@ function c96864105.initial_effect(c)
 	e2:SetCondition(c96864105.indcon)
 	e2:SetValue(1)
 	c:RegisterEffect(e2)
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_SINGLE)
+	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
+	e3:SetCode(511002571)
+	e3:SetLabel(c:GetOriginalCode())
+	e3:SetLabelObject(e1)
+	c:RegisterEffect(e3)
 end
 c96864105.xyz_number=73
 function c96864105.atkcon(e,tp,eg,ep,ev,re,r,rp)

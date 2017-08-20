@@ -2,7 +2,7 @@
 function c90140980.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
-	aux.AddFusionProcCode3(c,12482652,42941100,79335209,true,true)
+	aux.AddFusionProcMix(c,true,true,12482652,42941100,79335209)
 	--disable field
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)

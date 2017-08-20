@@ -14,13 +14,24 @@ function c95113856.initial_effect(c)
 	e1:SetTarget(c95113856.target)
 	e1:SetOperation(c95113856.operation)
 	c:RegisterEffect(e1)
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_SINGLE)
+	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
+	e2:SetCode(511002571)
+	e2:SetLabel(c:GetOriginalCode())
+	e2:SetLabelObject(e1)
+	c:RegisterEffect(e2)
 end
 function c95113856.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
 	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
 end
+function c95113856.rmfilter(c)
+	if not c:IsAbleToRemove() then return false end
+	return not c:IsLocation(LOCATION_GRAVE) or not c:IsType(TYPE_MONSTER) or not Duel.IsPlayerAffectedByEffect(c:GetControler(),69832741)
+end
 function c95113856.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsAbleToRemove,tp,0,LOCATION_ONFIELD+LOCATION_HAND+LOCATION_GRAVE+LOCATION_DECK,1,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(c95113856.rmfilter,tp,0,LOCATION_ONFIELD+LOCATION_HAND+LOCATION_GRAVE+LOCATION_DECK,1,nil) end
 	local off=1
 	local ops={}
 	local opval={}
@@ -34,10 +45,18 @@ function c95113856.target(e,tp,eg,ep,ev,re,r,rp,chk)
 		opval[off-1]=2
 		off=off+1
 	end
-	if Duel.IsExistingMatchingCard(Card.IsAbleToRemove,tp,0,LOCATION_GRAVE,1,nil) then
-		ops[off]=aux.Stringid(95113856,3)
-		opval[off-1]=3
-		off=off+1
+	if Duel.IsPlayerAffectedByEffect(1-tp,69832741) then
+		if Duel.IsExistingMatchingCard(Card.IsAbleToRemove,tp,0,LOCATION_MZONE,1,nil) then
+			ops[off]=aux.Stringid(95113856,3)
+			opval[off-1]=3
+			off=off+1
+		end
+	else
+		if Duel.IsExistingMatchingCard(Card.IsAbleToRemove,tp,0,LOCATION_GRAVE,1,nil) then
+			ops[off]=aux.Stringid(95113856,3)
+			opval[off-1]=3
+			off=off+1
+		end
 	end
 	if Duel.IsExistingMatchingCard(Card.IsAbleToRemove,tp,0,LOCATION_DECK,1,nil) then
 		ops[off]=aux.Stringid(95113856,4)
@@ -65,7 +84,12 @@ function c95113856.operation(e,tp,eg,ep,ev,re,r,rp)
 		end
 	elseif op==3 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-		local g=Duel.SelectMatchingCard(tp,Card.IsAbleToRemove,tp,0,LOCATION_GRAVE,1,1,nil)
+		local g
+		if Duel.IsPlayerAffectedByEffect(1-tp,69832741) then
+			g=Duel.SelectMatchingCard(tp,Card.IsAbleToRemove,tp,0,LOCATION_MZONE,1,1,nil)
+		else
+			g=Duel.SelectMatchingCard(tp,Card.IsAbleToRemove,tp,0,LOCATION_GRAVE,1,1,nil)
+		end
 		if g:GetCount()>0 then
 			Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
 		end

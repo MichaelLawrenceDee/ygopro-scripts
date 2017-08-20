@@ -24,9 +24,16 @@ function c96592102.initial_effect(c)
 	e2:SetTarget(c96592102.destg)
 	e2:SetOperation(c96592102.desop)
 	c:RegisterEffect(e2)
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_SINGLE)
+	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
+	e3:SetCode(511002571)
+	e3:SetLabelObject(e2)
+	e3:SetLabel(c:GetOriginalCode())
+	c:RegisterEffect(e3)
 end
 function c96592102.atkcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetLP(tp)<=Duel.GetLP(1-tp)-3000 and e:GetHandler():IsSummonType(SUMMON_TYPE_XYZ)
+	return Duel.GetLP(tp)<=Duel.GetLP(1-tp)-3000 and e:GetHandler():GetSummonType()==SUMMON_TYPE_XYZ
 end
 function c96592102.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

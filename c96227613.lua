@@ -1,4 +1,6 @@
 --覇王門零
+--Supreme King Gate Zero
+--Scripted by Eerie Code
 function c96227613.initial_effect(c)
 	aux.EnablePendulumAttribute(c)
 	--avoid damage
@@ -6,14 +8,12 @@ function c96227613.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_CHANGE_DAMAGE)
 	e1:SetRange(LOCATION_PZONE)
-	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_AVAILABLE_BD)
 	e1:SetTargetRange(1,0)
+	e1:SetLabel(0)
 	e1:SetCondition(c96227613.ndcon)
-	e1:SetValue(0)
+	e1:SetValue(c96227613.damval)
 	c:RegisterEffect(e1)
-	local e0=e1:Clone()
-	e0:SetCode(EFFECT_NO_EFFECT_DAMAGE)
-	c:RegisterEffect(e0)
 	--search
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(96227613,0))
@@ -37,21 +37,44 @@ function c96227613.initial_effect(c)
 	e3:SetOperation(c96227613.spop)
 	c:RegisterEffect(e3)
 	--pendulum
-	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(96227613,2))
-	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e4:SetCode(EVENT_DESTROYED)
-	e4:SetProperty(EFFECT_FLAG_DELAY)
-	e4:SetCondition(c96227613.pencon)
-	e4:SetTarget(c96227613.pentg)
-	e4:SetOperation(c96227613.penop)
-	c:RegisterEffect(e4)
+	local e6=Effect.CreateEffect(c)
+	e6:SetDescription(aux.Stringid(96227613,2))
+	e6:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e6:SetCode(EVENT_DESTROYED)
+	e6:SetProperty(EFFECT_FLAG_DELAY)
+	e6:SetCondition(c96227613.pencon)
+	e6:SetTarget(c96227613.pentg)
+	e6:SetOperation(c96227613.penop)
+	c:RegisterEffect(e6)
+	--Reset	
+	local e7=Effect.CreateEffect(c)
+	e7:SetProperty(EFFECT_FLAG_DAMAGE_STEP)
+	e7:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e7:SetCode(EVENT_ADJUST)
+	e7:SetRange(LOCATION_PZONE)
+	e7:SetLabelObject(e1)
+	e7:SetOperation(c96227613.trig)
+	c:RegisterEffect(e7)
 end
 function c96227613.ndcfilter(c)
 	return c:IsFaceup() and c:IsCode(13331639)
 end
 function c96227613.ndcon(e)
 	return Duel.IsExistingMatchingCard(c96227613.ndcfilter,e:GetHandlerPlayer(),LOCATION_ONFIELD,0,1,nil)
+end
+function c96227613.damval(e,re,val,r,rp,rc)
+	local tp=e:GetHandlerPlayer()
+	if val~=0 then
+		e:SetLabel(val)
+		return 0
+	else return val end
+end
+function c96227613.trig(e,tp,eg,ep,ev,re,r,rp)
+	local val=e:GetLabelObject():GetLabel()
+	if val~=0 then
+		Duel.RaiseEvent(e:GetHandler(),96227613,e,REASON_EFFECT,tp,tp,val)
+		e:GetLabelObject():SetLabel(0)
+	end
 end
 function c96227613.thcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(Card.IsCode,tp,LOCATION_PZONE,0,1,e:GetHandler(),22211622)
@@ -61,15 +84,18 @@ function c96227613.thfilter(c)
 end
 function c96227613.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c96227613.thfilter,tp,LOCATION_DECK,0,1,nil) end
-	local g=Duel.GetFieldGroup(tp,LOCATION_PZONE,0)
+	local c=e:GetHandler()
+	local pc=Duel.GetFieldCard(tp,LOCATION_SZONE,13-c:GetSequence())
+	local g=Group.FromCards(c,pc)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,2,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
 function c96227613.thop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not c:IsRelateToEffect(e) then return end
-	local g=Duel.GetFieldGroup(tp,LOCATION_PZONE,0)
-	if g:GetCount()<2 then return end
+	local pc=Duel.GetFieldCard(tp,LOCATION_SZONE,13-c:GetSequence())
+	if not pc then return end
+	local g=Group.FromCards(c,pc)
 	if Duel.Destroy(g,REASON_EFFECT)==2 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 		local sg=Duel.SelectMatchingCard(tp,c96227613.thfilter,tp,LOCATION_DECK,0,1,1,nil)
@@ -87,8 +113,9 @@ function c96227613.spfilter(c,e,tp)
 end
 function c96227613.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local c=e:GetHandler()
-	if chkc then return chkc:IsOnField() and chkc:IsControler(tp) and c96227613.desfilter(chkc,c,tp) and chkc~=c end
-	if chk==0 then return Duel.IsExistingTarget(c96227613.desfilter,tp,LOCATION_ONFIELD,0,1,c,c,tp)
+	if chkc then return chkc:IsOnField() and chkc:IsControler(tp) and chkc:IsFaceup() and chkc~=c end
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>-1
+		and Duel.IsExistingTarget(Card.IsFaceup,tp,LOCATION_ONFIELD,0,1,c,c,tp)
 		and Duel.IsExistingMatchingCard(c96227613.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local g=Duel.SelectTarget(tp,c96227613.desfilter,tp,LOCATION_ONFIELD,0,1,1,c,c,tp)
@@ -99,10 +126,9 @@ end
 function c96227613.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if not c:IsRelateToEffect(e) or not tc:IsRelateToEffect(e) then return end
+	if not c:IsRelateToEffect(e) or not tc or not tc:IsRelateToEffect(e) then return end
 	local dg=Group.FromCards(c,tc)
 	if Duel.Destroy(dg,REASON_EFFECT)==2 then
-		if Duel.GetLocationCountFromEx(tp)<=0 then return end
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local g=Duel.SelectMatchingCard(tp,c96227613.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp)
 		if g:GetCount()==0 then return end
@@ -143,10 +169,10 @@ function c96227613.pencon(e,tp,eg,ep,ev,re,r,rp)
 	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsFaceup()
 end
 function c96227613.pentg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.CheckLocation(tp,LOCATION_PZONE,0) or Duel.CheckLocation(tp,LOCATION_PZONE,1) end
+	if chk==0 then return Duel.CheckLocation(tp,LOCATION_SZONE,6) or Duel.CheckLocation(tp,LOCATION_SZONE,7) end
 end
 function c96227613.penop(e,tp,eg,ep,ev,re,r,rp)
-	if not Duel.CheckLocation(tp,LOCATION_PZONE,0) and not Duel.CheckLocation(tp,LOCATION_PZONE,1) then return end
+	if not Duel.CheckLocation(tp,LOCATION_SZONE,6) and not Duel.CheckLocation(tp,LOCATION_SZONE,7) then return false end
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) then
 		Duel.MoveToField(c,tp,tp,LOCATION_SZONE,POS_FACEUP,true)

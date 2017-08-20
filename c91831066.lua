@@ -32,7 +32,7 @@ function c91831066.atkcon(e,tp,eg,ep,ev,re,r,rp)
 	if not bc then return false end
 	if bc:IsControler(1-tp) then bc=tc end
 	e:SetLabelObject(bc)
-	return bc:IsFaceup() and bc:IsSetCard(0xcd)
+	return bc:IsFaceup() and bc:IsSetCard(0x10cd)
 end
 function c91831066.atkop(e,tp,eg,ep,ev,re,r,rp)
 	if not e:GetHandler():IsRelateToEffect(e) then return end
