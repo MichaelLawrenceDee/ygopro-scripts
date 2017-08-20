@@ -1,7 +1,7 @@
 --TG ワンダー・マジシャン
 function c98558751.initial_effect(c)
 	--synchro summon
-	aux.AddSynchroProcedure(c,nil,aux.NonTuner(Card.IsSetCard,0x27),1)
+	aux.AddSynchroProcedure(c,nil,1,1,aux.NonTuner(Card.IsSetCard,0x27),1,99)
 	c:EnableReviveLimit()
 	--destroy
 	local e1=Effect.CreateEffect(c)
@@ -39,7 +39,7 @@ function c98558751.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function c98558751.descon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSummonType(SUMMON_TYPE_SYNCHRO)
+	return e:GetHandler():GetSummonType()==SUMMON_TYPE_SYNCHRO
 end
 function c98558751.filter(c)
 	return c:IsType(TYPE_SPELL+TYPE_TRAP)

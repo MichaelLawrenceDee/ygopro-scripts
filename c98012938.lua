@@ -1,7 +1,7 @@
 --獣神ヴァルカン
 function c98012938.initial_effect(c)
 	--synchro summon
-	aux.AddSynchroProcedure(c,nil,aux.NonTuner(nil),1)
+	aux.AddSynchroProcedure(c,nil,1,1,aux.NonTuner(nil),1,99)
 	c:EnableReviveLimit()
 	--return
 	local e1=Effect.CreateEffect(c)
@@ -17,7 +17,7 @@ function c98012938.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function c98012938.condition(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSummonType(SUMMON_TYPE_SYNCHRO)
+	return e:GetHandler():GetSummonType()==SUMMON_TYPE_SYNCHRO
 end
 function c98012938.filter(c)
 	return c:IsFaceup() and c:IsAbleToHand()

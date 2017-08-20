@@ -2,7 +2,7 @@
 function c98927491.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
-	aux.AddFusionProcCode2(c,24311595,36378213,true,true)
+	aux.AddFusionProcMix(c,true,true,24311595,36378213)
 	--spsummon condition
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -24,7 +24,7 @@ function c98927491.initial_effect(c)
 end
 function c98927491.filter(c,e,tp)
 	return c:IsLocation(LOCATION_GRAVE) and c:IsReason(REASON_BATTLE) and c:GetPreviousControler()==tp
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE)
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c98927491.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then

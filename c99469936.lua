@@ -30,6 +30,13 @@ function c99469936.initial_effect(c)
 	e3:SetTarget(c99469936.target)
 	e3:SetOperation(c99469936.operation)
 	c:RegisterEffect(e3)
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_SINGLE)
+	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
+	e4:SetCode(511002571)
+	e4:SetLabel(c:GetOriginalCode())
+	e4:SetLabelObject(e3)
+	c:RegisterEffect(e4)
 end
 function c99469936.ovfilter(c)
 	return c:IsFaceup() and c:GetRank()==5 and c:IsAttribute(ATTRIBUTE_WATER)
@@ -39,7 +46,7 @@ function c99469936.atkval(e,c)
 end
 function c99469936.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_EFFECT) end
-	if Duel.SelectEffectYesNo(tp,e:GetHandler(),96) then
+	if Duel.SelectYesNo(tp,aux.Stringid(99469936,1)) then
 		e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_EFFECT)
 		return true
 	else return false end
