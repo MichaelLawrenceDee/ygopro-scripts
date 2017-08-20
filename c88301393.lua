@@ -39,19 +39,20 @@ function c88301393.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 function c88301393.spfilter(c)
-	return c:IsSetCard(0xbb) and c:IsType(TYPE_MONSTER) and c:IsAbleToRemoveAsCost()
-end
-function c88301393.sumfilter(c)
-	return c:IsFaceup() and c:IsType(TYPE_EFFECT)
-end
-function c88301393.lv_or_rk(c)
-	if c:IsType(TYPE_XYZ) then return c:GetRank()
-	else return c:GetLevel() end
+	if not c:IsSetCard(0xbb) or not c:IsType(TYPE_MONSTER) or not c:IsAbleToRemoveAsCost() then return false end
+	return not c:IsLocation(LOCATION_GRAVE) or not Duel.IsPlayerAffectedByEffect(c:GetControler(),69832741)
 end
 function c88301393.spcon(e,c)
 	if c==nil then return true end
 	local tp=c:GetControler()
-	local sum=Duel.GetMatchingGroup(c88301393.sumfilter,tp,LOCATION_MZONE,0,nil):GetSum(c88301393.lv_or_rk)
+	local sum=0
+	for i=0,4 do
+		local tc=Duel.GetFieldCard(tp,LOCATION_MZONE,i)
+		if tc and tc:IsFaceup() and tc:IsType(TYPE_EFFECT) then
+			if tc:IsType(TYPE_XYZ) then sum=sum+tc:GetRank()
+			else sum=sum+tc:GetLevel() end
+		end
+	end
 	if sum>8 then return false end
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
 	if ft<-1 then return false end
@@ -64,7 +65,11 @@ function c88301393.spcon(e,c)
 				and Duel.IsExistingMatchingCard(c88301393.spfilter,tp,LOCATION_MZONE+LOCATION_GRAVE+LOCATION_HAND,0,2,c)
 		end
 	else
-		return ft>0 and Duel.IsExistingMatchingCard(c88301393.spfilter,tp,LOCATION_GRAVE+LOCATION_HAND,0,2,c)
+		if Duel.IsPlayerAffectedByEffect(tp,69832741) then
+			return Duel.IsExistingMatchingCard(c88301393.spfilter,tp,LOCATION_MZONE+LOCATION_HAND,0,2,c)
+		else
+			return ft>0 and Duel.IsExistingMatchingCard(c88301393.spfilter,tp,LOCATION_GRAVE+LOCATION_HAND,0,2,c)
+		end
 	end
 end
 function c88301393.spop(e,tp,eg,ep,ev,re,r,rp,c)
@@ -86,7 +91,23 @@ function c88301393.spop(e,tp,eg,ep,ev,re,r,rp,c)
 			end
 		end
 	else
-		g=Duel.SelectMatchingCard(tp,c88301393.spfilter,tp,LOCATION_GRAVE+LOCATION_HAND,0,2,2,c)
+		if Duel.IsPlayerAffectedByEffect(tp,69832741) then
+			if ft>0 then
+				g=Duel.SelectMatchingCard(tp,c88301393.spfilter,tp,LOCATION_MZONE+LOCATION_HAND,0,2,2,c)
+			else
+				local sg=Duel.GetMatchingGroup(c88301393.spfilter,tp,LOCATION_MZONE+LOCATION_HAND,0,c)
+				local ct=-ft+1
+				g=sg:FilterSelect(tp,Card.IsLocation,ct,ct,nil,LOCATION_MZONE)
+				if ct<2 then
+					sg:Sub(g)
+					Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+					local g2=sg:Select(tp,2-ct,2-ct,nil)
+					g:Merge(g2)
+				end
+			end
+		else
+			g=Duel.SelectMatchingCard(tp,c88301393.spfilter,tp,LOCATION_GRAVE+LOCATION_HAND,0,2,2,c)
+		end
 	end
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
@@ -103,16 +124,24 @@ function c88301393.rmcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=Duel.SelectReleaseGroup(tp,Card.IsReleasable,1,1,nil)
 	Duel.Release(g,REASON_COST)
 end
+function c88301393.rmfilter(c)
+	if not c:IsAbleToRemove() then return false end
+	if c:IsLocation(LOCATION_GRAVE) then
+		return not Duel.IsPlayerAffectedByEffect(c:GetControler(),69832741) or not c:IsType(TYPE_MONSTER)
+	else
+		return Duel.IsPlayerAffectedByEffect(c:GetControler(),69832741)
+	end
+end
 function c88301393.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(1-tp) and chkc:IsAbleToRemove() end
-	if chk==0 then return Duel.IsExistingTarget(Card.IsAbleToRemove,tp,0,LOCATION_GRAVE,1,nil) end
+	if chkc then return chkc:IsLocation(LOCATION_MZONE+LOCATION_GRAVE) and chkc:IsControler(1-tp) and c88301393.rmfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(c88301393.rmfilter,tp,0,LOCATION_MZONE+LOCATION_GRAVE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectTarget(tp,Card.IsAbleToRemove,tp,0,LOCATION_GRAVE,1,1,nil)
+	local g=Duel.SelectTarget(tp,c88301393.rmfilter,tp,0,LOCATION_MZONE+LOCATION_GRAVE,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,0)
 end
 function c88301393.rmop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
+	if tc and tc:IsRelateToEffect(e) then
 		Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)
 	end
 end

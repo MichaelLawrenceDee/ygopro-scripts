@@ -3,7 +3,7 @@ function c88120966.initial_effect(c)
 	--xyz summon
 	aux.AddXyzProcedure(c,nil,8,2)
 	c:EnableReviveLimit()
-	--attack up
+	--destroy and damage
 	local e1=Effect.CreateEffect(c)
 	e1:SetCategory(CATEGORY_DESTROY+CATEGORY_DAMAGE)
 	e1:SetDescription(aux.Stringid(88120966,0))
@@ -16,6 +16,13 @@ function c88120966.initial_effect(c)
 	e1:SetTarget(c88120966.target)
 	e1:SetOperation(c88120966.operation)
 	c:RegisterEffect(e1)
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_SINGLE)
+	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
+	e2:SetCode(511002571)
+	e2:SetLabel(c:GetOriginalCode())
+	e2:SetLabelObject(e1)
+	c:RegisterEffect(e2)
 end
 c88120966.xyz_number=15
 function c88120966.condition(e,tp,eg,ep,ev,re,r,rp)
@@ -26,7 +33,7 @@ function c88120966.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
 end
 function c88120966.filter(c)
-	return c:IsSummonType(SUMMON_TYPE_SPECIAL)
+	return bit.band(c:GetSummonType(),SUMMON_TYPE_SPECIAL)==SUMMON_TYPE_SPECIAL
 end
 function c88120966.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and c88120966.filter(chkc) end

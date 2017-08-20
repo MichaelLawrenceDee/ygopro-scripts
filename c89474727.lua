@@ -1,7 +1,7 @@
 --真閃珖竜 スターダスト・クロニクル
 function c89474727.initial_effect(c)
 	--synchro summon
-	aux.AddSynchroProcedure(c,aux.FilterBoolFunction(Card.IsSynchroType,TYPE_SYNCHRO),aux.NonTuner(Card.IsSynchroType,TYPE_SYNCHRO),1)
+	aux.AddSynchroProcedure(c,aux.FilterBoolFunction(Card.IsType,TYPE_SYNCHRO),1,1,aux.NonTuner(Card.IsType,TYPE_SYNCHRO),1,99)
 	c:EnableReviveLimit()
 	--special summon condition
 	local e1=Effect.CreateEffect(c)
@@ -33,12 +33,17 @@ function c89474727.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function c89474727.cfilter(c)
-	return c:IsType(TYPE_SYNCHRO) and c:IsAbleToRemoveAsCost()
+	if not c:IsType(TYPE_SYNCHRO) or not c:IsAbleToRemoveAsCost() then return false end
+	if Duel.IsPlayerAffectedByEffect(c:GetControler(),69832741) then
+		return c:IsFaceup() and c:IsLocation(LOCATION_MZONE)
+	else
+		return c:IsLocation(LOCATION_GRAVE)
+	end
 end
 function c89474727.immcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c89474727.cfilter,tp,LOCATION_GRAVE,0,1,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(c89474727.cfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,e:GetHandler()) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,c89474727.cfilter,tp,LOCATION_GRAVE,0,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,c89474727.cfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,1,e:GetHandler())
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
 function c89474727.immop(e,tp,eg,ep,ev,re,r,rp)
@@ -59,7 +64,7 @@ function c89474727.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return rp~=tp and e:GetHandler():GetPreviousControler()==tp
 end
 function c89474727.spfilter(c,e,tp)
-	return c:IsFaceup() and c:IsType(TYPE_SYNCHRO) and c:IsRace(RACE_DRAGON) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsType(TYPE_SYNCHRO) and c:IsRace(RACE_DRAGON) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c89474727.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_REMOVED) and chkc:IsControler(tp) and c89474727.spfilter(chkc,e,tp) end

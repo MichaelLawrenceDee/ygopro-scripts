@@ -19,7 +19,8 @@ function c88305978.condition(e,tp,eg,ep,ev,re,r,rp)
 		and Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)==0
 end
 function c88305978.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost() end
+	if chk==0 then return not Duel.IsPlayerAffectedByEffect(e:GetHandlerPlayer(),69832741) 
+		and e:GetHandler():IsAbleToRemoveAsCost() end
 	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_COST)
 end
 function c88305978.filter(c,e,tp)

@@ -47,12 +47,17 @@ function c86690572.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c86690572.thfilter(c)
-	return c:IsAttribute(ATTRIBUTE_FIRE) and c:IsAbleToRemoveAsCost()
+	if not c:IsAttribute(ATTRIBUTE_FIRE) or not c:IsAbleToRemoveAsCost() then return false end
+	if Duel.IsPlayerAffectedByEffect(c:GetControler(),69832741) then
+		return c:IsFaceup() and c:IsLocation(LOCATION_MZONE)
+	else
+		return c:IsLocation(LOCATION_GRAVE)
+	end
 end
 function c86690572.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c86690572.thfilter,tp,LOCATION_GRAVE,0,2,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(c86690572.thfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,2,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,c86690572.thfilter,tp,LOCATION_GRAVE,0,2,2,nil)
+	local g=Duel.SelectMatchingCard(tp,c86690572.thfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,2,2,nil)
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
 function c86690572.thtg(e,tp,eg,ep,ev,re,r,rp,chk)

@@ -47,27 +47,36 @@ function c89399912.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 function c89399912.rfilter(c)
-	return (c:IsRace(RACE_DRAGON) or c:IsAttribute(ATTRIBUTE_WIND)) and c:IsAbleToRemoveAsCost()
+	if (not c:IsRace(RACE_DRAGON) and not c:IsAttribute(ATTRIBUTE_WIND)) or not c:IsAbleToRemoveAsCost() then return false end
+	if c:IsLocation(LOCATION_HAND) then return true end
+	if Duel.IsPlayerAffectedByEffect(c:GetControler(),69832741) then
+		return c:IsFaceup() and c:IsLocation(LOCATION_MZONE)
+	else
+		return c:IsLocation(LOCATION_GRAVE)
+	end
 end
 function c89399912.hspcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c89399912.rfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,2,e:GetHandler()) end
+	if chk==0 then return Duel.IsExistingMatchingCard(c89399912.rfilter,tp,LOCATION_HAND+LOCATION_MZONE+LOCATION_GRAVE,0,2,e:GetHandler()) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,c89399912.rfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,2,2,e:GetHandler())
+	local g=Duel.SelectMatchingCard(tp,c89399912.rfilter,tp,LOCATION_HAND+LOCATION_MZONE+LOCATION_GRAVE,0,2,2,e:GetHandler())
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
 function c89399912.hsptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+	if chk==0 then return (Duel.GetLocationCount(tp,LOCATION_MZONE)>0 or Duel.IsPlayerAffectedByEffect(tp,69832741)) 
 		and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
 end
 function c89399912.hspop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not c:IsRelateToEffect(e) then return end
-	Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+	if Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)==0 and Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsLocation(LOCATION_HAND) then
+		Duel.SendtoGrave(c,REASON_RULE)
+	end
 end
 function c89399912.retcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnPlayer()~=tp
-		and e:GetHandler():IsSummonType(SUMMON_TYPE_SPECIAL)
+		and bit.band(e:GetHandler():GetSummonType(),SUMMON_TYPE_SPECIAL)==SUMMON_TYPE_SPECIAL
 end
 function c89399912.rettg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end

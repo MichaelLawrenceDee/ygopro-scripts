@@ -1,7 +1,7 @@
 --幻層の守護者アルマデス
 function c88033975.initial_effect(c)
 	--synchro summon
-	aux.AddSynchroProcedure(c,nil,aux.NonTuner(nil),1)
+	aux.AddSynchroProcedure(c,nil,1,1,aux.NonTuner(nil),1,99)
 	c:EnableReviveLimit()
 	--actlimit
 	local e1=Effect.CreateEffect(c)

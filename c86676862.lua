@@ -2,7 +2,7 @@
 function c86676862.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
-	aux.AddFusionProcCodeFun(c,58554959,c86676862.ffilter,1,true,true)
+	aux.AddFusionProcMix(c,true,true,58554959,c86676862.ffilter)
 	--spsummon condition
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE)
@@ -26,6 +26,7 @@ function c86676862.initial_effect(c)
 	e4:SetCode(EFFECT_MUST_ATTACK)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetTargetRange(0,LOCATION_MZONE)
+	e4:SetCondition(c86676862.poscon)
 	c:RegisterEffect(e4)
 	local e5=e4:Clone()
 	e5:SetCode(EFFECT_MUST_ATTACK_MONSTER)
@@ -46,5 +47,5 @@ function c86676862.ffilter(c)
 end
 function c86676862.poscon(e)
 	local ph=Duel.GetCurrentPhase()
-	return Duel.GetTurnPlayer()~=e:GetHandler():GetControler() and ph>=0x8 and ph<=0x20
+	return Duel.GetTurnPlayer()~=e:GetHandlerPlayer() and ph>=0x8 and ph<=0x20
 end

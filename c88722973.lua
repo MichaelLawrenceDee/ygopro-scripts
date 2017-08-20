@@ -1,7 +1,7 @@
 --昇竜剣士マジェスターP
 function c88722973.initial_effect(c)
 	--xyz summon
-	aux.AddXyzProcedure(c,aux.FilterBoolFunction(Card.IsXyzType,TYPE_PENDULUM),4,2)
+	aux.AddXyzProcedure(c,aux.FilterBoolFunction(Card.IsType,TYPE_PENDULUM),4,2)
 	c:EnableReviveLimit()
 	--search
 	local e1=Effect.CreateEffect(c)
@@ -22,9 +22,16 @@ function c88722973.initial_effect(c)
 	e2:SetTarget(c88722973.sptg)
 	e2:SetOperation(c88722973.spop)
 	c:RegisterEffect(e2)
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_SINGLE)
+	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
+	e3:SetCode(511002571)
+	e3:SetLabelObject(e2)
+	e3:SetLabel(c:GetOriginalCode())
+	c:RegisterEffect(e3)
 end
 function c88722973.regcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSummonType(SUMMON_TYPE_XYZ)
+	return e:GetHandler():GetSummonType()==SUMMON_TYPE_XYZ
 end
 function c88722973.regtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsType,tp,LOCATION_DECK,0,1,nil,TYPE_PENDULUM) end

@@ -1,7 +1,7 @@
 --HSR快刀乱破ズール
 function c86943389.initial_effect(c)
 	--synchro summon
-	aux.AddSynchroProcedure(c,nil,aux.NonTuner(nil),1)
+	aux.AddSynchroProcedure(c,nil,1,1,aux.NonTuner(nil),1,99)
 	c:EnableReviveLimit()
 	--Double ATK
 	local e1=Effect.CreateEffect(c)
@@ -21,7 +21,7 @@ function c86943389.initial_effect(c)
 	c:RegisterEffect(e2)
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(86943389,1))
-	e3:SetCategory(CATEGORY_TOHAND)
+	e3:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e3:SetCode(EVENT_PHASE+PHASE_END)
 	e3:SetCountLimit(1)
@@ -35,7 +35,7 @@ end
 function c86943389.atkcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local bc=c:GetBattleTarget()
-	return bc and bc:IsSummonType(SUMMON_TYPE_SPECIAL)
+	return bc and bit.band(bc:GetSummonType(),SUMMON_TYPE_SPECIAL)==SUMMON_TYPE_SPECIAL
 end
 function c86943389.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -50,7 +50,7 @@ function c86943389.atkop(e,tp,eg,ep,ev,re,r,rp)
 end
 function c86943389.regcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsSummonType(SUMMON_TYPE_SYNCHRO)
+	return c:IsPreviousLocation(LOCATION_MZONE) and c:GetSummonType()==SUMMON_TYPE_SYNCHRO
 end
 function c86943389.regop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

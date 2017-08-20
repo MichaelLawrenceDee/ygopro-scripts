@@ -32,7 +32,7 @@ function c87288189.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 function c87288189.otfilter(c)
-	return c:IsSummonType(SUMMON_TYPE_ADVANCE)
+	return bit.band(c:GetSummonType(),SUMMON_TYPE_ADVANCE)==SUMMON_TYPE_ADVANCE
 end
 function c87288189.otcon(e,c,minc)
 	if c==nil then return true end
@@ -46,7 +46,7 @@ function c87288189.otop(e,tp,eg,ep,ev,re,r,rp,c)
 	Duel.Release(sg,REASON_SUMMON+REASON_MATERIAL)
 end
 function c87288189.condition(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSummonType(SUMMON_TYPE_ADVANCE)
+	return e:GetHandler():GetSummonType()==SUMMON_TYPE_ADVANCE
 end
 function c87288189.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() end
@@ -58,6 +58,15 @@ function c87288189.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,g:GetCount(),0,0)
 	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,1000)
 end
+function c87288189.rmfilter(c,code)
+	if not c:IsCode(code) then return false end
+	if not c:IsLocation(LOCATION_GRAVE+LOCATION_MZONE) then return true end
+	if Duel.IsPlayerAffectedByEffect(c:GetControler(),69832741) then
+		return c:IsFaceup() and c:IsLocation(LOCATION_MZONE)
+	else
+		return c:IsLocation(LOCATION_GRAVE)
+	end
+end
 function c87288189.operation(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(Card.IsRelateToEffect,nil,e)
 	if g:GetCount()>0 and Duel.Remove(g,POS_FACEUP,REASON_EFFECT)~=0 then
@@ -67,7 +76,7 @@ function c87288189.operation(e,tp,eg,ep,ev,re,r,rp)
 		local tc=og:GetFirst()
 		while tc do
 			if tc:IsAttribute(ATTRIBUTE_DARK) then
-				local sg=Duel.GetMatchingGroup(Card.IsCode,tc:GetControler(),0x53,0,nil,tc:GetCode())
+				local sg=Duel.GetMatchingGroup(c87288189.rmfilter,tc:GetControler(),0x57,0,nil,tc:GetCode())
 				rg:Merge(sg)
 			end
 			tc=og:GetNext()
